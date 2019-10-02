@@ -1,27 +1,34 @@
-"""
-project_esilv URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/2.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from pages.views import home_view, contact_view
+from tests.views import (
+	test_create_view,
+	test_standard_create_view,
+	test_mcq_create_view,
+	test_display_view,
+	test_mcq_display_view,
+	test_pass_view,
+	test_mcq_pass_view,
+	tests_list_teacher_view,
+	tests_list_student_view,
+	tests_history_view,
+	tests_analysis_view,
+)
+
+app_name = 'tests'
 
 urlpatterns = [
-    path('admin/', admin.site.urls, name='admin'),
-    path('', home_view, name='home'),
-    # path('home/', home_view, name='home'),
+	# Teacher
+	path('manage/create/', test_create_view, name='Create test'),
+	path('manage/create/standard/', test_standard_create_view, name='Create standard test'),
+	path('manage/create/mcq/', test_mcq_create_view, name='Create mcq test'),
+	path('manage/display/<str:input_id_test>/', test_display_view, name='Display test'),
+	path('manage/display/mcq/<str:input_id_test>/', test_mcq_display_view, name='Display mcq test'),
+	path('manage/list/', tests_list_teacher_view, name='List tests teacher'),
+	path('manage/analysis/', tests_analysis_view, name='Analyse tests'),
 
-    path('tests/', include('tests.urls'))
+	# Student
+	path('pass/<str:input_id_test>', test_pass_view, name='Pass test'),
+	path('pass/mcq/<str:input_id_test>', test_mcq_pass_view, name='Pass test mcq'),
+	path('pass/list/', tests_list_student_view, name='List tests student'),
+	path('pass/history/', tests_history_view, name='Tests history'),
 ]
