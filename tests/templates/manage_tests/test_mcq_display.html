@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+	<h1>Form {{ form.id_test }}</h1>
+
+	<h2>Questions:</h2>
+
+    <p>{{ form.title }}</p>
+
+    <!-- Create a for loop to display each question -->
+    <p>{{ form.q_num }}</p>
+    <p>{{ form.expct_answer_num }}</p>
+    <p>{{ form.correspond_answer_text }}</p>
+</div>
+
+{% endblock content %}
