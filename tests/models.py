@@ -58,7 +58,72 @@ class Pass_test_end_session(models.Model):
 			return False
 
 
+class MCQTest(models.Model):
+	id_test = models.CharField(max_length=10, null=False, primary_key=True)
+	title = models.CharField(max_length=50,null=False)
+	q1 = models.TextField()
+	r11 = models.TextField()
+	r12 = models.TextField()
+	r13 = models.TextField()
+	r14 = models.TextField()
+	r1 = models.IntegerField(null=False)
+	
+	q2 = models.TextField()
+	r21 = models.TextField()
+	r22 = models.TextField()
+	r23 = models.TextField()
+	r24 = models.TextField()
+	r2 = models.IntegerField(null=False)
+	
+	q3 = models.TextField()
+	r31 = models.TextField()
+	r32 = models.TextField()
+	r33 = models.TextField()
+	r34 = models.TextField()
+	r3 = models.IntegerField(null=False)
+	
+	q4 = models.TextField()
+	r41 = models.TextField()
+	r42 = models.TextField()
+	r43 = models.TextField()
+	r44 = models.TextField()
+	r4 = models.IntegerField(null=False)
+	
+	q5 = models.TextField()
+	r51 = models.TextField()
+	r52 = models.TextField()
+	r53 = models.TextField()
+	r54 = models.TextField()
+	r5 = models.IntegerField(null=False)
 
+	def get_absolute_url(self):
+		# dynamic (if 'my_app' is renamed in the url, it will adapt)
+		return reverse('tests:Display MCQTest test', kwargs={'input_id_test': self.id_test})
+		
+class Pass_MCQTest_end_session(models.Model):
+	"""
+	Model for the students records of passing the test
+	"""
+	id_test = models.CharField(max_length=10, null=False)
+	id_student = models.CharField(max_length=10, null=False)
+	q1 = models.IntegerField()
+	q2 = models.IntegerField()
+	q3 = models.IntegerField()
+	q4 = models.IntegerField()
+	q5 = models.IntegerField()
+
+	def get_absolute_url(self):
+		return reverse('tests:Display MCQTest test', kwargs={'input_id_test': self.id_test})
+
+	class Meta:
+		unique_together = ('id_test', 'id_student')
+
+	def test_dumb_id_student_not_admin(self):
+		if not self.id_student == 'admin':
+			return True
+		else:
+			return False
+		
 ## Multiple tests ##
 
 class Test_mcq_end_session(models.Model):
