@@ -169,6 +169,10 @@ def tests_history_view(request):
 	}
 	return render(request, 'pass_tests/tests_history.html', context)
 
+def dashboard_view(request):
+
+    return render(request, 'manage_tests/dashboard.html')
+    
 def tests_analysis_view(request):
 	# Analysis of the students' results
 	queryset = Pass_test_end_session.objects.all()

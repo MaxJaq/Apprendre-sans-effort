@@ -12,6 +12,7 @@ from tests.views import (
 	tests_list_student_view,
 	tests_history_view,
 	tests_analysis_view,
+    dashboard_view,
 	test_mcqtest_create_view,
 	test_mcqtest_display_view,
 	test_mcqtest_pass_view,
@@ -30,6 +31,7 @@ urlpatterns = [
 	path('manage/display/mcqtest/<str:input_id_test>/', test_mcqtest_display_view, name='Display MCQTest test'),
 	path('manage/list/', tests_list_teacher_view, name='List tests teacher'),
 	path('manage/analysis/', tests_analysis_view, name='Analyse tests'),
+    path('manage/dashboard/', dashboard_view,name='Dashboard'),
 
 	# Student
 	path('pass/<str:input_id_test>', test_pass_view, name='Pass test'),
