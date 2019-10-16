@@ -125,8 +125,8 @@
 
 .body {
   position: static;
-  background-color: red;
-  border : dashed yellow;
+  /*background-color:red;
+  background-border: dashed yellow;*/
   padding-left: 60px;
   padding-right: 60px;
   padding-top: 1vh;
