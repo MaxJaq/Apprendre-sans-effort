@@ -52,7 +52,7 @@
 /* ================================== */
 
 .band-home {
-  background-color: black;
+  background-color: white;
   height: 100vh;
   width: 100vw;
 }
@@ -121,6 +121,8 @@
 
 .body {
   position: static;
+  background-color: red;
+  border : dashed yellow;
   padding-left: 60px;
   padding-right: 60px;
   padding-top: 1vh;
