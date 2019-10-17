@@ -261,7 +261,28 @@ def statistics_view(request, input_id_test):
 	moyenne_mcqtest /= len(pass_mcqtest_list)
 	moyenne_mcqtest="%.2f" % moyenne_mcqtest
 	nb_test = len(pass_mcqtest_list)
-	
+    
+    #Debut Maxime & Hugo
+    #1er et 3e quartile d'une serie
+    
+    liste = pass_mcqtest_list
+    liste.sort()
+    if len(liste)%4 == 0:
+        q1=liste[len(liste)//4-1]
+        q3=liste[3*len(liste)//4-1]
+    else
+        q1=liste[len(liste)//4]
+        q3=liste[3*len(liste)//4]
+        
+    #mediane
+        
+     liste.sort()
+     if len(liste)%2 == 0:
+        m=((liste[(len(liste)-1)//2]+liste[len(liste)//2])/2)
+     else:
+        m = liste[len(liste)//2]
+        
+     #Fin Maxime & Hugo   
 	i = 0
 	stats_question = [0,0,0,0,0]
 	
