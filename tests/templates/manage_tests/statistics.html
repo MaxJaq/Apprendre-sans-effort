@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+	<h1>MCQ Pass Test : {{ mcqtest.id_test }}</h1>
+	{% for instance in pass_mcqtest_list %}
+            <p>
+                    Note de l'élève {{instance.id_student}} : {{instance.mark}}/5
+            </p>
+    {% endfor %}
+	<br/>
+	<h2>Statistiques du test</h2>
+	<br/>
+	<p>Nombre de test passés : {{nb_test}}</p>
+	<p>Moyenne du test : {{moyenne_mcqtest}}/5</p>
+	<p>Note la plus basse : {{note_plus_basse}}/5</p>
+	<p>Note la plus haute : {{note_plus_haute}}/5</p>
+	{% for question in stats_question %}
+            <p>
+                    Stats question {{forloop.counter}} : {{question}}/{{nb_test}}
+            </p>
+    {% endfor %}
+	
+	<h2>Graphs du test</h2>
+	
+	{% load static %}<img src="{% static 'images/GraphsQuestions.png' %}" alt="My image"/>
+
+</div>
+
+{% endblock content %}

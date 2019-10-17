@@ -46,7 +46,7 @@ class Pass_test_end_session(models.Model):
 	q10 = models.TextField()
 
 	def get_absolute_url(self):
-		return reverse('tests:Display test', kwargs={'input_id_test': self.id_test})
+		return reverse('tests:Display pass test', kwargs={'input_id_test': self.id_test})
 
 	class Meta:
 		unique_together = ('id_test', 'id_student')
@@ -61,6 +61,7 @@ class Pass_test_end_session(models.Model):
 class MCQTest(models.Model):
 	id_test = models.CharField(max_length=10, null=False, primary_key=True)
 	title = models.CharField(max_length=50,null=False)
+	
 	q1 = models.TextField()
 	r11 = models.TextField()
 	r12 = models.TextField()
@@ -99,6 +100,10 @@ class MCQTest(models.Model):
 	def get_absolute_url(self):
 		# dynamic (if 'my_app' is renamed in the url, it will adapt)
 		return reverse('tests:Display MCQTest test', kwargs={'input_id_test': self.id_test})
+	
+	def get_statistics(self):
+		# dynamic (if 'my_app' is renamed in the url, it will adapt)
+		return reverse('tests:Statistics', kwargs={'input_id_test': self.id_test})
 		
 class Pass_MCQTest_end_session(models.Model):
 	"""
@@ -106,14 +111,16 @@ class Pass_MCQTest_end_session(models.Model):
 	"""
 	id_test = models.CharField(max_length=10, null=False)
 	id_student = models.CharField(max_length=10, null=False)
+	id_MCQTest = models.CharField(max_length=10, null=False)
 	q1 = models.IntegerField()
 	q2 = models.IntegerField()
 	q3 = models.IntegerField()
 	q4 = models.IntegerField()
 	q5 = models.IntegerField()
+	mark = models.IntegerField(null=True)
 
 	def get_absolute_url(self):
-		return reverse('tests:Display MCQTest test', kwargs={'input_id_test': self.id_test})
+		return reverse('tests:Display pass mcqtest', kwargs={'input_id_test': self.id_test})
 
 	class Meta:
 		unique_together = ('id_test', 'id_student')

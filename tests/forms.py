@@ -210,6 +210,7 @@ class MCQTestForm(forms.ModelForm):
 class PassMCQTestForm(forms.ModelForm):
 	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
 	id_student = forms.CharField(required=True)
+	id_MCQTest = forms.CharField(required=True)
 	q1 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
 	q2 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
 	q3 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
@@ -222,6 +223,7 @@ class PassMCQTestForm(forms.ModelForm):
 		fields = [
 			'id_test',
 			'id_student',
+			'id_MCQTest',
 			'q1',
 			'q2',
 			'q3',

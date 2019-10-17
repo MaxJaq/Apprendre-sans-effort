@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+    <h1>Pass Tests</h1>
+
+    <h2>Standard:</h2>
+
+    {% for instance in pass_tests_list %}
+            <p>
+                    <a href='{{ instance.get_absolute_url }}'>Test {{ instance.id_test }}</a> 
+                <!-- {{ instance.description }} -->
+            </p>
+    {% endfor %}
+
+	<h2>Multiple Choices Questions TEST :</h2>
+	
+	{% for instance in pass_tests_mcqtest_list %}
+            <p>
+                    <a href='{{ instance.get_absolute_url }}'>Test {{ instance.id_test }}</a>
+                <!-- {{ instance.description }} -->
+            </p>
+    {% endfor %}
+
+</div>
+
+{% endblock content %}
