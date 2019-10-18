@@ -9,22 +9,57 @@
                     Note de l'élève {{instance.id_student}} : {{instance.mark}}/5
             </p>
     {% endfor %}
+	
 	<br/>
 	<h2>Statistiques du test</h2>
 	<br/>
 	<p>Nombre de test passés : {{nb_test}}</p>
 	<p>Moyenne du test : {{moyenne_mcqtest}}/5</p>
+	<p>Quartile n°1 : {{q1}}/5</p>
+	<p>Mediane : {{mediane}}/5</p>
+	<p>Quartile n°3 : {{q3}}/5</p>
 	<p>Note la plus basse : {{note_plus_basse}}/5</p>
 	<p>Note la plus haute : {{note_plus_haute}}/5</p>
-	{% for question in stats_question %}
-            <p>
-                    Stats question {{forloop.counter}} : {{question}}/{{nb_test}}
-            </p>
+	
+	<h3>Fréquence des notes</h3>
+	<table>
+	<tr>
+	<td>Note&nbsp </td>
+	{% for freq in total_freq %}
+		<td>&nbsp {{forloop.counter0}}/5</td>	
+    {% endfor %}
+	</tr>
+	<tr>
+	<td>Frequence&nbsp </td>
+	{% for freq in total_freq %}
+		<td>&nbsp {{freq.0}} %</td>	
+    {% endfor %}
+	</tr>
+	<tr>
+	<td>Frequence cumulée&nbsp </td>
+	{% for freq in total_freq %}
+		<td>&nbsp {{freq.1}} %</td>	
+    {% endfor %}
+	</tr>
+	</table>
+	
+	<h3>Statistiques par question</h3>
+	
+	{% for question in total_statistics_question %}
+        <p>
+                Question {{forloop.counter}} : {{question.0}}/{{nb_test}} ({{question.1}} %)
+        </p>
     {% endfor %}
 	
 	<h2>Graphs du test</h2>
 	
+	{% load static %}<img src="{% static 'images/GraphsBoxplot.png' %}" alt="My image"/>
+	<br/><br/><br/>
+	{% load static %}<img src="{% static 'images/GraphsNote.png' %}" alt="My image"/>
+	<br/><br/><br/>
 	{% load static %}<img src="{% static 'images/GraphsQuestions.png' %}" alt="My image"/>
+	
+
 
 </div>
 

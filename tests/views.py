@@ -97,7 +97,7 @@ def test_pass_view(request, input_id_test):
 	
 def test_mcqtest_pass_view(request, input_id_test):
 	form_questions = get_object_or_404(MCQTest, id_test=input_id_test)
-	form_answers = PassMCQTestForm(request.POST or None)
+	form_answers = PassMCQTestForm(request.POST or None,initial={'id_MCQTest': input_id_test})
 
 	if form_answers.is_valid():
 		form_answers.save()
@@ -224,12 +224,21 @@ def dashboard_view(request):
 	
 def statistics_view(request, input_id_test):
 	mcqtest = get_object_or_404(MCQTest, id_test=input_id_test)
-	pass_mcqtest_list = Pass_MCQTest_end_session.objects.all()
+	pass_mcqtest_list_all = Pass_MCQTest_end_session.objects.all()
+	pass_mcqtest_list = []
+	
+	#On récupère les pass_tests lier au MCQTest
+	#Pour cela on ajoute ceux dont l'id_MCQTest est le même que celui du MCQTest
 	i = 0
-	while i < len(pass_mcqtest_list):
-		if pass_mcqtest_list[i].id_MCQTest != input_id_test:
-			del pass_mcqtest_list[i]
+	while i < len(pass_mcqtest_list_all):
+		if pass_mcqtest_list_all[i].id_MCQTest == input_id_test:
+			pass_mcqtest_list.append(pass_mcqtest_list_all[i])
 		i += 1
+	
+	statistiques_notes = [0,0,0,0,0,0]
+	
+	#On associe les notes aux pass_test
+	marks_list=[]
 	i = 0
 	while i < len(pass_mcqtest_list):
 		note = 0
@@ -245,8 +254,11 @@ def statistics_view(request, input_id_test):
 			note += 1
 		pass_mcqtest_list[i].mark = note
 		pass_mcqtest_list[i].save()
+		marks_list.append(pass_mcqtest_list[i].mark)
+		statistiques_notes[note] += 1
 		i += 1
 		
+	#Calcul de la moyenne et des notes hautes et basses
 	moyenne_mcqtest = 0
 	note_plus_basse = 5
 	note_plus_haute = 0
@@ -261,31 +273,41 @@ def statistics_view(request, input_id_test):
 	moyenne_mcqtest /= len(pass_mcqtest_list)
 	moyenne_mcqtest="%.2f" % moyenne_mcqtest
 	nb_test = len(pass_mcqtest_list)
-    
-    #Debut Maxime & Hugo
-    #1er et 3e quartile d'une serie
-    
-    liste = pass_mcqtest_list
-    liste.sort()
-    if len(liste)%4 == 0:
-        q1=liste[len(liste)//4-1]
-        q3=liste[3*len(liste)//4-1]
-    else
-        q1=liste[len(liste)//4]
-        q3=liste[3*len(liste)//4]
-        
-    #mediane
-        
-     liste.sort()
-     if len(liste)%2 == 0:
-        m=((liste[(len(liste)-1)//2]+liste[len(liste)//2])/2)
-     else:
-        m = liste[len(liste)//2]
-        
-     #Fin Maxime & Hugo   
-	i = 0
-	stats_question = [0,0,0,0,0]
 	
+	#1er et 3e quartile d'une serie
+
+	marks_list.sort()
+	if len(marks_list)%4 == 0:
+		q1=marks_list[len(marks_list)//4-1]
+		q3=marks_list[3*len(marks_list)//4-1]
+	else:
+		q1=marks_list[len(marks_list)//4]
+		q3=marks_list[3*len(marks_list)//4]
+
+    #Calcul de la mediane
+
+	marks_list.sort()
+	if len(marks_list)%2 == 0:
+		m=((marks_list[(len(marks_list)-1)//2]+marks_list[len(marks_list)//2])/2)
+	else:
+		m = marks_list[len(marks_list)//2]
+		
+	#Calcul des fréquences
+	
+	total_freq = []
+	somme_freq = 0
+	i = 0
+	while i < len(statistiques_notes):
+		temp_freq = 100 * statistiques_notes[i] / len(pass_mcqtest_list)
+		somme_freq += temp_freq
+		temp_freq = "%.2f" % temp_freq
+		som_freq = "%.2f" % somme_freq
+		total_freq.append((temp_freq,som_freq))
+		i += 1
+	
+	#On met dans une liste les statistiques liés à chaque question
+	stats_question = [0,0,0,0,0]
+	i = 0
 	while i < len(pass_mcqtest_list):
 		if pass_mcqtest_list[i].q1 == mcqtest.r1:
 			stats_question[0] += 1
@@ -298,8 +320,25 @@ def statistics_view(request, input_id_test):
 		if pass_mcqtest_list[i].q5 == mcqtest.r5:
 			stats_question[4] += 1
 		i += 1
+		
+	#Pourcentage des statistiques par question
+	pourcentage_question = []
+	i = 0
+	while i < len(stats_question):
+		pourcentage = 100*stats_question[i]/len(pass_mcqtest_list)
+		pourcentage = "%.2f" % pourcentage
+		pourcentage_question.append(pourcentage)
+		i += 1
+		
+	total_statistics_question = []
+	i = 0
+	while i < len(stats_question):
+		total_statistics_question.append((stats_question[i],pourcentage_question[i]))
+		i += 1
 	
-	GraphsQuestions(stats_question)
+	GraphsQuestions(stats_question,pass_mcqtest_list)
+	GraphsNote(total_freq)
+	GraphsBoxplot(marks_list)
 
 	context = {
 		'mcqtest': mcqtest,
@@ -308,11 +347,16 @@ def statistics_view(request, input_id_test):
 		'nb_test' : nb_test,
 		'note_plus_haute' : note_plus_haute,
 		'note_plus_basse' : note_plus_basse,
-		'stats_question' : stats_question,
+		'q1' : q1,
+		'q3' : q3,
+		'mediane' : m,
+		'total_statistics_question' : total_statistics_question,
+		'total_freq' : total_freq,
 	}
 	return render(request, 'manage_tests/statistics.html', context)
 	
-def GraphsQuestions(stats_question):
+#Graphique statistiques par question
+def GraphsQuestions(stats_question,pass_mcqtest_list):
 	plt.rcdefaults()
 	fig, ax = plt.subplots()
 
@@ -325,8 +369,30 @@ def GraphsQuestions(stats_question):
 	ax.set_yticks(y_pos)
 	ax.set_yticklabels(questions)
 	ax.invert_yaxis()  # labels read top-to-bottom
-	ax.set_xlabel('Bonne réponses')
+	ax.set_xlabel('Bonnes réponses')
 	ax.set_title('Stats Questions')
 	plt.savefig('./pages/static/images/GraphsQuestions.png')
+	
+#Graphique statistiques des notes
+def GraphsNote(total_freq):
+	labels = '0/5', '1/5', '2/5', '3/5', '4/5', '5/5'
+	sizes = []
+	for q in total_freq:
+		sizes.append(q[0])
+	fig, ax = plt.subplots()
+	ax.pie(sizes, labels=labels, autopct='%1.1f%%',shadow=True, startangle=90)
+	ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+	ax.set_title('Statistiques des notes')
+	plt.savefig('./pages/static/images/GraphsNote.png')
+	
+#Boxplot du test
+def GraphsBoxplot(marks_list):
+	data = marks_list
+	fig, ax = plt.subplots()
+	ax.boxplot(data,vert=False,)
+	ax.set_title('Boxplot du test')
+	plt.savefig('./pages/static/images/GraphsBoxplot.png')
+	
+
 
 
