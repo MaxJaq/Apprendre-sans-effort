@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+    <h1>Tests</h1>
+	
+	<h2>Multiple Choices Questions :</h2>
+	
+	{% for instance in tests_mcqtest_list %}
+            <p>
+                    <a href='{{ instance.get_statistics }}'>Test {{ instance.id_test }}</a>: {{ instance.title }}
+            </p>
+    {% endfor %}
+
+</div>
+
+{% endblock content %}

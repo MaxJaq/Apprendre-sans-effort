@@ -3,11 +3,12 @@ from .models import (
 	Test_end_session,
 	Pass_test_end_session,
 	Test_mcq_end_session,
-	Pass_test_mcq_end_session
+	Pass_test_mcq_end_session,
+	MCQTest,
+	Pass_MCQTest_end_session
 )
 
 from .backend_code import compare_input_wt_expected as compare
-
 
 
 class TestForm(forms.ModelForm):
@@ -128,6 +129,108 @@ class PassTestForm(forms.ModelForm):
 			
 		return assessment
 
+class MCQTestForm(forms.ModelForm):
+	# Properly displayed
+	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
+	title = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Test title'}))
+	q1 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	r11 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r12 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r13 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r14 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r1 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	
+	q2 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	r21 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r22 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r23 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r24 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r2 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	
+	q3 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	r31 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r32 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r33 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r34 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r3 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	
+	q4 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	r41 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r42 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r43 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r44 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r4 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	
+	q5 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	r51 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r52 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r53 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r54 = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':20}))
+	r5 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	
+
+	# Robustly Handled
+	class Meta:
+		model = MCQTest
+		fields = [
+			'id_test',
+			'title',
+			'q1',
+			'r11',
+			'r12',
+			'r13',
+			'r14',
+			'r1',
+			'q2',
+			'r21',
+			'r22',
+			'r23',
+			'r24',
+			'r2',
+			'q3',
+			'r31',
+			'r32',
+			'r33',
+			'r34',
+			'r3',
+			'q4',
+			'r41',
+			'r42',
+			'r43',
+			'r44',
+			'r4',
+			'q5',
+			'r51',
+			'r52',
+			'r53',
+			'r54',
+			'r5',
+		]
+		
+class PassMCQTestForm(forms.ModelForm):
+	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
+	id_student = forms.CharField(required=True)
+	id_MCQTest = forms.CharField(required=True)
+	q1 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	q2 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	q3 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	q4 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+	q5 = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Numéro de la bonne réponse'}))
+
+	# Robustly Handled
+	class Meta:
+		model = Pass_MCQTest_end_session
+		fields = [
+			'id_test',
+			'id_student',
+			'id_MCQTest',
+			'q1',
+			'q2',
+			'q3',
+			'q4',
+			'q5',
+		]
+		
 
 
 ## Multiple choices forms ##

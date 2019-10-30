@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+	<h1>Standard Pass Test : {{ form.id_test }}</h1>
+	
+	<p>Id student : {{ form.id_student }}</p>
+
+	<h2>Réponses:</h2>
+
+	<p>Réponse 1 : {{ form.q1 }}</p> 
+	<p>Réponse 2 : {{ form.q2 }}</p>
+	<p>Réponse 3 : {{ form.q3 }}</p>
+	<p>Réponse 4 : {{ form.q4 }}</p>
+	<p>Réponse 5 : {{ form.q5 }}</p>
+	<p>Réponse 6 : {{ form.q6 }}</p> 
+	<p>Réponse 7 : {{ form.q7 }}</p>
+	<p>Réponse 8 : {{ form.q8 }}</p>
+	<p>Réponse 9 : {{ form.q9 }}</p>
+	<p>Réponse 10 : {{ form.q10 }}</p>
+</div>
+
+{% endblock content %}
