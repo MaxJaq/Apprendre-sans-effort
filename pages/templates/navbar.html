@@ -2,13 +2,14 @@
 	<ul class='navbar-list'>
 		<div class='student-section'>
 			<li><a href="{% url 'home' %}">Home</a></li>
-			<li><a href="{% url 'tests:List tests student' %}">Pass tests</a></li>
-			<li><a href="{% url 'tests:Tests history' %}">History</a></li>
+			<li><a href="{% url 'tests:List tests student' %}">Pass Test</a></li>
+			<li><a href="{% url 'tests:Tests history' %}">History 2</a></li>
 		</div>
 		<div class='teacher-section'>
 			<li><a href="{% url 'tests:Create test' %}">Create test</a></li>
 			<li><a href="{% url 'tests:List tests teacher' %}">Tests list</a></li>
 			<li><a href="{% url 'tests:Analyse tests' %}">Analysis</a></li>
+			<li><a href="{% url 'tests:Dashboard' %}">Dashboard</a></li>
 		</div>
 	</ul>
 </div>

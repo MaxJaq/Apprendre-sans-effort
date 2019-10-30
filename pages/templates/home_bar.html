@@ -1,13 +1,15 @@
 <div class='band-home'>
     <div class="clickable-bar-home">
         <div class="row" id='student'>
-            <div class="box"><a href="{% url 'tests:List tests student' %}"><div class="inner">Pass tests</div></a></div>
+            <div class="box"><a href="{% url 'tests:List tests student' %}"><div class="inner">Pass test 2</div></a></div>
             <div class="box"><a href="{% url 'tests:Tests history' %}"><div class="inner">History</div></a></div>
         </div>
         <div class="row" id='teacher'>
-            <div class="box"><a href="{% url 'tests:Create test' %}"><div class="inner">Create test</div></a></div>
+            <div class="box"><a href="{% url 'tests:Create test' %}"><div class="inner">Create test 2</div></a></div>
             <div class="box"><a href="{% url 'tests:List tests teacher' %}"><div class="inner">Tests list</div></a></div>
             <div class="box"><a href="{% url 'tests:Analyse tests' %}"><div class="inner">Analysis</div></a></div>
+			<div class="box"><a href="{% url 'tests:List pass tests teacher' %}"><div class="inner">Pass Tests List</div></a></div>
+			<div class="box"><a href="{% url 'tests:Dashboard' %}"><div class="inner">Dashboard</div></a></div>
         </div>
     </div>
 </div>
