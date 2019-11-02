@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+
+	<form method='POST'> 
+		{% csrf_token %}
+		{{ form_answers.management_form }}
+		<h1>Passing Test {{ form_questions.0.id_test }}</h1>
+		{%for instance in form_questions%}
+			<p>Question : {{instance.q_num}} : {{instance.q_text}}</p>
+		{%endfor%}
+		<br/>
+		{%for instance in form_answers%}
+			<p>Id test : {{instance.id_test}}</p>
+			<p>Id student : {{instance.id_student}}</p>
+			<p>Numéro Question : {{instance.q_num}}</p>
+			<p>Réponse : {{instance.r_text}}</p>
+			<br/>
+		{%endfor%}
+		<input type='submit', value='Save'/>
+	</form>
+</div>
+
+{% endblock content %}

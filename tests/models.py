@@ -130,6 +130,31 @@ class Pass_MCQTest_end_session(models.Model):
 			return True
 		else:
 			return False
+			
+class DynTest(models.Model):
+	id_test = models.CharField(max_length=10, null=False)
+	title = models.CharField(max_length=50)
+	q_num = models.IntegerField()
+	q_text = models.TextField()
+	r_text = models.TextField()
+
+	def get_absolute_url(self):
+		return reverse('tests:Display dyntest', kwargs={'input_id_test': self.id_test})
+
+	class Meta:
+		unique_together = ('id_test', 'q_num')
+		
+class Pass_DynTest(models.Model):
+	id_test = models.CharField(max_length=10, null=False)
+	id_student = models.CharField(max_length=10, null=False)
+	q_num = models.CharField(max_length=10, null=True)
+	r_text = models.TextField()
+
+	def get_absolute_url(self):
+		return reverse('tests:Display pass dyntest', kwargs={'input_id_test': self.id_test})
+
+	class Meta:
+		unique_together = ('id_test', 'id_student','q_num')
 		
 ## Multiple tests ##
 

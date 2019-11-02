@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+	<form method='POST'> {% csrf_token %}
+		<p>Id test: {{ form.id_test }}</p>
+		<p>Title: {{ form.title }}</p>
+		<p>Numéro Question: {{ form.q_num }}</p>
+		<p>Question: {{ form.q_text }}</p>
+		<p>Réponse: {{ form.r_text}}</p>
+		<input type='submit', value='Save'/>
+	</form>
+</div>
+{% endblock content %}
+

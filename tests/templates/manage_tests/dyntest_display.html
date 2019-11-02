@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+	<h1>Numéro du test : {{ testlist_dyntest.0.id_test }}</h1>
+	<h1>Titre : {{ testlist_dyntest.0.title }}</h1>
+	{% for instance in testlist_dyntest %}
+		<p>Question {{instance.q_num}} : {{instance.q_text}}</p>
+		<p>Réponse : {{instance.r_text}}</p>
+    {% endfor %}
+</div>
+
+{% endblock content %}
