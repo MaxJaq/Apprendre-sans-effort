@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+	<h1>Id Student : {{ pass_dyntest_list.0.id_student }}</h1>
+
+	{%for instance in pass_dyntest_list%}
+		<p>Id test : {{instance.id_test}}</p>
+		<p>Réponse {{instance.q_num}} : {{instance.r_text}}</p>
+		<br/>
+	{%endfor%}
+</div>
+
+{% endblock content %}

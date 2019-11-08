@@ -6,6 +6,7 @@ from tests.views import (
 	test_mcq_create_view,
 	DynTest_create_view,
 	test_mcqtest_create_view,
+	DynTest_menu_view,
 	
 	test_display_view,
 	test_mcq_display_view,
@@ -13,6 +14,7 @@ from tests.views import (
 	pass_mcqtest_display_view,
 	test_mcqtest_display_view,
 	pass_test_display_view,
+	pass_dyntest_display_view,
 	
 	test_mcqtest_pass_view,
 	test_pass_view,
@@ -36,11 +38,13 @@ urlpatterns = [
 	path('manage/create/standard/', test_standard_create_view, name='Create standard test'),
 	path('manage/create/mcq/', test_mcq_create_view, name='Create mcq test'),
 	path('manage/create/mcqtest/', test_mcqtest_create_view, name='Create MCQTest test'),
-	path('manage/create/dyntest/', DynTest_create_view, name='Create DynTest'),
+	path('manage/create/dyntestmenu/', DynTest_menu_view, name='Create DynTest Menu'),
+	path('manage/create/dyntest/<str:input_id_test>/', DynTest_create_view, name='Create DynTest'),
 	
 	path('manage/display/test/<str:input_id_test>/', test_display_view, name='Display test'),
 	path('manage/display/passmcqtest/<str:input_id_test>/', pass_mcqtest_display_view, name='Display pass mcqtest'),
 	path('manage/display/passtest/<str:input_id_test>/', pass_test_display_view, name='Display pass test'),
+	path('manage/display/passdyntest/<str:input_id_student>/', pass_dyntest_display_view, name='Display pass dyntest'),
 	path('manage/display/dyntest/<str:input_id_test>/', dyntest_display_view, name='Display dyntest'),
 	path('manage/display/mcq/<str:input_id_test>/', test_mcq_display_view, name='Display mcq test'),
 	path('manage/display/mcqtest/<str:input_id_test>/', test_mcqtest_display_view, name='Display MCQTest test'),

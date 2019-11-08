@@ -2,14 +2,18 @@
 
 {% block content %}
 <div class='body'>
-	<form method='POST'> {% csrf_token %}
-		<p>Id test: {{ form.id_test }}</p>
-		<p>Title: {{ form.title }}</p>
-		<p>Numéro Question: {{ form.q_num }}</p>
-		<p>Question: {{ form.q_text }}</p>
-		<p>Réponse: {{ form.r_text}}</p>
+	<form method='POST'>
+		{{ form.management_form }}	
+		{% csrf_token %}
+		<h1>Passing Test : {{ DynTestInforms.id_test }}</h1>
+		<h1>Title : {{ DynTestInforms.title }}</h1>
+		{%for instance in form%}
+			<h4>Question n° {{forloop.counter}}</h4>
+			<p>Question : {{instance.q_text}}</p>
+			<p>Réponse : {{instance.r_text}} &nbsp &nbsp &nbsp Utiliser la question : {{instance.activated}}</p>
+		{%endfor%}
 		<input type='submit', value='Save'/>
 	</form>
 </div>
-{% endblock content %}
 
+{% endblock content %}

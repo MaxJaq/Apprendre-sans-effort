@@ -8,6 +8,7 @@ from .models import (
 	Pass_MCQTest_end_session,
 	DynTest,
 	Pass_DynTest,
+	DynTestInfo,
 )
 
 from .backend_code import compare_input_wt_expected as compare
@@ -263,39 +264,40 @@ class TestMcqForm(forms.ModelForm):
 		
 class DynTestForm(forms.ModelForm):
 	# Properly displayed
-	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
-	title = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'Test title'}))
-	q_num = forms.IntegerField()
 	q_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
 	r_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':25}))
+	activated = forms.BooleanField(initial=False)
 
 	# Robustly Handled
 	class Meta:
 		model = DynTest
 		fields = [
-			'id_test',
-			'title',
-			'q_num',
 			'q_text',
 			'r_text',
+			'activated',
 		]
 		
-class DynTestFormShort(DynTestForm):
-	class Meta(DynTestForm.Meta):
-		exclude = ('title',)
+		
+class DynTestInfoForm(forms.ModelForm):
+	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
+	title = forms.CharField(required=True)
+	nb_q = forms.CharField(required=True)
+	class Meta:
+		model = DynTestInfo
+		fields = [
+			'id_test',
+			'title',
+			'nb_q',
+		]
 		
 class Pass_DynTestForm(forms.ModelForm):
-	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
 	id_student = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Student ID'}))
-	q_num = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':25}))
 	r_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':25}))
 
 	class Meta:
 		model = Pass_DynTest
 		fields = [
-			'id_test',
 			'id_student',
-			'q_num',
 			'r_text',
 		]
 

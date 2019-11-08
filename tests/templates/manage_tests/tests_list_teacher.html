@@ -34,9 +34,9 @@
 	
 	<h2>Dynamic TEST :</h2>
 	
-	{% for instance in testlist_dyntest %}
+	{% for instance in testlist_dyntestinfo_all %}
             <p>
-                    <a href='{{ instance.get_absolute_url }}'>Test {{ instance.id_test }}</a>: {{ instance.title }}
+                    <a href='{{ instance.get_absolute_url_dyntest }}'>Test {{ instance.id_test }}</a>: {{ instance.title }}
                 <!-- {{ instance.description }} -->
             </p>
     {% endfor %}

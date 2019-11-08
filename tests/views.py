@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.forms import formset_factory
-from .forms import TestForm, PassTestForm, TestMcqForm, PassTestMcqForm, MCQTestForm, PassMCQTestForm, DynTestForm, DynTestFormShort,Pass_DynTestForm
-from .models import Test_end_session, Pass_test_end_session, Test_mcq_end_session, MCQTest, Pass_MCQTest_end_session, DynTest,Pass_DynTest
+from .forms import TestForm, PassTestForm, TestMcqForm, PassTestMcqForm, MCQTestForm, PassMCQTestForm, DynTestForm, Pass_DynTestForm,DynTestInfoForm
+from .models import Test_end_session, Pass_test_end_session, Test_mcq_end_session, MCQTest, Pass_MCQTest_end_session, DynTest,Pass_DynTest,DynTestInfo
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -25,16 +25,76 @@ def test_standard_create_view(request):
 	}
 	return render(request, 'manage_tests/test_create_standard.html', context)
 	
-def DynTest_create_view(request):
-	form = DynTestForm(request.POST or None)
-	if form.is_valid():
-		form.save()
-		form = DynTestForm()
-
+def DynTest_create_view(request,input_id_test):
+	#Récupération des informations du test
+	DynTestInforms = get_object_or_404(DynTestInfo, id_test=input_id_test)
+	
+	#DynTestListAll = DynTest.objects.all()
+	#DynTestList = []
+	#DynTestExist = False
+	#for dyntest in DynTestListAll:
+	#	if dyntest.id_test == DynTestInfo.id_test:
+	#		DynTestExist = True
+	#		DynTestList.append(dyntest)
+			
+	nb_questions = DynTestInforms.nb_q
+	
+	#On créé un formulaire groupé de n questions du formulaire DynTestForm
+	DynTestSet = formset_factory(DynTestForm, extra = int(nb_questions))
+		
+	#on met dans data 3 propriétés obligatoire pour le fonctionnement du formulaire groupé
+	data = {
+		'form-TOTAL_FORMS': int(nb_questions),
+		'form-INITIAL_FORMS': '0',
+		'form-MAX_NUM_FORMS': '',
+	}
+	
+	form = DynTestSet()
+	if request.method == 'POST':
+		form = DynTestSet(request.POST)
+		if form.is_valid():
+			question_count = 1
+			#Remplissage automatique des champs id_test et q_num
+			for instance in form:
+				dyntest = instance.save(commit=False)
+				dyntest.id_test = input_id_test
+				dyntest.q_num = question_count
+				question_count += 1
+				dyntest.save()
+			form = DynTestSet()
+			
 	context = {
-		'form': form
+		'form': form,
+		'DynTestInforms': DynTestInforms,
 	}
 	return render(request, 'manage_tests/test_create_dyntest.html',context)
+	
+def DynTest_menu_view(request):
+	#Formulaire du DynTestInfo
+	form = DynTestInfoForm(request.POST or None)
+	if form.is_valid():
+		form.save()
+		form = DynTestInfoForm()
+	
+	#On teste s'il y a des question (DynTest) qui ont le même id_test que les DynTestInfo
+	#pour vérifier si le questionnaire est rempli de questions ou non
+	#S'il le questionnaire est vide, on l'affiche sur la page html.
+	DynTestInfo_list_all = DynTestInfo.objects.all()
+	DynTestInfo_list = []
+	DynTest_list_all = DynTest.objects.all()
+	for dyntestinfo in DynTestInfo_list_all:
+		dyntestfull = False
+		for dyntest in DynTest_list_all:
+			if dyntestinfo.id_test == dyntest.id_test:
+				dyntestfull = True
+		if dyntestfull == False:
+			DynTestInfo_list.append(dyntestinfo)
+			
+	context = {
+		'form': form,
+		'DynTestInfo_list' : DynTestInfo_list,
+	}
+	return render(request, 'manage_tests/menu_dyntest.html',context)
 	
 def test_mcqtest_create_view(request):
 	""" Show page to create a standard test (inputting text as answers) """
@@ -149,31 +209,39 @@ def test_mcq_pass_view(request, input_id_test):
 	return render(request, 'pass_tests/test_mcq_pass.html', context)
 	
 def dyntest_pass_view(request, input_id_test):
+	DynTestInforms = get_object_or_404(DynTestInfo, id_test=input_id_test)
 	testlist_dyntest_all = DynTest.objects.all()
 	form_questions = []
-	nb_q = 0
-	#On récupère les dynamics test et on compte le nombre de questions du test
+	#On récupère les dynamics test
 	for dyntest in testlist_dyntest_all:
 		if dyntest.id_test == input_id_test:
 			form_questions.append(dyntest)
-			nb_q += 1
 	
+	nb_questions = DynTestInforms.nb_q
 	#On créé un formulaire groupé de pass_dyntest du nombre de question du test
-	PassDynTestSet = formset_factory(Pass_DynTestForm, extra = nb_q)
+	PassDynTestSet = formset_factory(Pass_DynTestForm, extra = int(nb_questions))
 	#on met dans data 3 propriétés obligatoire pour le fonctionnement du formulaire groupé
 	data = {
-		'form-TOTAL_FORMS': nb_q,
+		'form-TOTAL_FORMS': int(nb_questions),
 		'form-INITIAL_FORMS': '0',
 		'form-MAX_NUM_FORMS': '',
 	}
-	form_answers = PassDynTestSet(data,request.POST)
-
-	if form_answers.is_valid():
-		for instance in form_answers:
-			instance.save()
-		form_answers = PassDynTestSet()
-
+	form_answers = PassDynTestSet()
+	if request.method == 'POST':
+		form_answers = PassDynTestSet(request.POST)
+	
+		if form_answers.is_valid():
+			question_count = 1
+			#Remplissage automatique des champs id_test et q_num
+			for instance in form_answers:
+				pass_dyntest = instance.save(commit=False)
+				pass_dyntest.id_test = input_id_test
+				pass_dyntest.q_num = question_count
+				question_count += 1
+				pass_dyntest.save()
+			form_answers = PassDynTestSet()
 	context = {
+		'DynTestInforms':DynTestInforms,
 		'form_answers': form_answers,
 		'form_questions': form_questions,
 	}
@@ -183,9 +251,17 @@ def pass_testslist_teacher_view(request):
 	# List all the pass tests of the db
 	pass_tests_list_normal_questions = Pass_test_end_session.objects.all()
 	pass_testlist_mcqtest = Pass_MCQTest_end_session.objects.all()
+	pass_dyntest_all = Pass_DynTest.objects.all()
+	pass_dyntest_list = []
+	id_student_list = []
+	for dyntest in pass_dyntest_all:
+		if dyntest.id_student not in id_student_list:
+			pass_dyntest_list.append(dyntest)
+			id_student_list.append(dyntest.id_student)
 	context = {
 		'pass_tests_list': pass_tests_list_normal_questions,
 		'pass_tests_mcqtest_list': pass_testlist_mcqtest,
+		'pass_dyntest_list': pass_dyntest_list,
 	}
 	return render(request, 'manage_tests/pass_tests_list_teacher.html', context)
 
@@ -196,18 +272,13 @@ def tests_list_teacher_view(request):
 	tests_list_normal_questions = Test_end_session.objects.all()
 	testlist_mcq = Test_mcq_end_session.objects.all()
 	testlist_mcqtest = MCQTest.objects.all()
-	testlist_dyntest_all = DynTest.objects.all()
-	testlist_dyntest = []
-	num_dyntest = []
-	for dyntest in testlist_dyntest_all:
-		if dyntest.id_test not in num_dyntest:
-			num_dyntest.append(dyntest.id_test)
-			testlist_dyntest.append(dyntest)
+	testlist_dyntestinfo_all = DynTestInfo.objects.all()
+
 	context = {
 		'tests_list': tests_list_normal_questions,
 		'tests_mcq_list': testlist_mcq,
 		'tests_mcqtest_list': testlist_mcqtest,
-		'testlist_dyntest':testlist_dyntest,
+		'testlist_dyntestinfo_all':testlist_dyntestinfo_all,
 	}
 	return render(request, 'manage_tests/tests_list_teacher.html', context)
 
@@ -216,18 +287,13 @@ def tests_list_student_view(request):
 	tests_list_normal_questions = Test_end_session.objects.all()
 	testlist_mcq = Test_mcq_end_session.objects.all()
 	testlist_mcqtest = MCQTest.objects.all()
-	testlist_dyntest_all = DynTest.objects.all()
-	testlist_dyntest = []
-	num_dyntest = []
-	for dyntest in testlist_dyntest_all:
-		if dyntest.id_test not in num_dyntest:
-			num_dyntest.append(dyntest.id_test)
-			testlist_dyntest.append(dyntest)
+	testlist_dyntestinfo_all = DynTestInfo.objects.all()
+
 	context = {
 		'tests_list': tests_list_normal_questions,
 		'tests_mcq_list': testlist_mcq,
 		'tests_mcqtest_list': testlist_mcqtest,
-		'testlist_dyntest':testlist_dyntest,
+		'testlist_dyntestinfo_all':testlist_dyntestinfo_all,
 	}
 	return render(request, 'pass_tests/tests_list_student.html', context)
 
@@ -258,14 +324,15 @@ def test_mcq_display_view(request, input_id_test):
 	return render(request, 'manage_tests/test_mcq_display.html', context)
 	
 def dyntest_display_view(request, input_id_test):
-	# Retrieve and display the requested mcq form
+	dyntestinfo = get_object_or_404(DynTestInfo, id_test=input_id_test)
 	testlist_dyntest_all = DynTest.objects.all()
 	testlist_dyntest = []
 	for dyntest in testlist_dyntest_all:
 		if dyntest.id_test == input_id_test:
 			testlist_dyntest.append(dyntest)
 	context = {
-		'testlist_dyntest': testlist_dyntest
+		'dyntestinfo':dyntestinfo,
+		'testlist_dyntest': testlist_dyntest,
 	}
 	return render(request, 'manage_tests/dyntest_display.html', context)
 	
@@ -284,6 +351,18 @@ def pass_mcqtest_display_view(request, input_id_test):
 		'form': form
 	}
 	return render(request, 'manage_tests/pass_mcqtest_display.html', context)
+	
+def pass_dyntest_display_view(request, input_id_student):
+	# Retrieve and display the requested mcq form
+	pass_dyntest_all = Pass_DynTest.objects.all()
+	pass_dyntest_list = []
+	for dyntest in pass_dyntest_all:
+		if dyntest.id_student == input_id_student:
+			pass_dyntest_list.append(dyntest)
+	context = {
+		'pass_dyntest_list': pass_dyntest_list
+	}
+	return render(request, 'manage_tests/pass_dyntest_display.html', context)
 	
 def dashboard_view(request):
 	testlist_mcqtest = MCQTest.objects.all()
