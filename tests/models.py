@@ -130,6 +130,60 @@ class Pass_MCQTest_end_session(models.Model):
 			return True
 		else:
 			return False
+			
+class DynMCQInfo(models.Model):
+	id_test = models.CharField(max_length=10, primary_key=True)
+	title = models.TextField()
+	nb_q = models.CharField(max_length=10)
+
+	def get_absolute_url(self):
+		return reverse('tests:Create DynMCQTest', kwargs={'input_id_test': self.id_test})
+	
+	def get_absolute_url_q_menu(self):
+		return reverse('tests:SelectMenu DynMCQquestion', kwargs={'input_id_test': self.id_test})
+		
+		
+class DynMCQquestion(models.Model):
+	id_test = models.CharField(max_length=10, null=True)
+	q_num = models.IntegerField(null = True)
+	q_text = models.TextField()
+	nb_ans = models.CharField(max_length=10)
+	right_ans = models.IntegerField(null = True)
+	activated = models.IntegerField(null = True)
+		
+	def get_absolute_url_question(self):
+		return reverse('tests:Create DynMCQquestion', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num})
+		
+	def get_absolute_url_answers(self):
+		return reverse('tests:Create DynMCQanswers', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num})
+		
+	def get_absolute_url_edit(self):
+		return reverse('tests:Edit DynMCQquestion', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num})
+		
+	class Meta:
+		unique_together = ('id_test', 'q_num')
+		
+class DynMCQanswer(models.Model):
+	id_test = models.CharField(max_length=10, null=True)
+	q_num = models.IntegerField(null = True)
+	ans_num = models.IntegerField(null = True)
+	ans_text = models.TextField()
+	right_ans = models.IntegerField()
+		
+	class Meta:
+		unique_together = ('id_test', 'q_num', 'ans_num')
+		
+	def get_absolute_url_edit(self):
+		return reverse('tests:Edit DynMCQanswer', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num,'input_ans_num': self.ans_num})
+		
+class Pass_DynMCQTest(models.Model):
+	id_test = models.CharField(max_length=10, null=True)
+	id_student = models.CharField(max_length=10)
+	q_num = models.CharField(max_length=10, null=True)
+	r_ans = models.TextField()
+
+	class Meta:
+		unique_together = ('id_test', 'id_student','q_num')
 
 class DynTestInfo(models.Model):
 	id_test = models.CharField(max_length=10, null=False, primary_key=True)

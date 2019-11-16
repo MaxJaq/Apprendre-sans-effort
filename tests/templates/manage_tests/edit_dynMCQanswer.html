@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+	<form method='POST'> {% csrf_token %}
+		<p><a href='{{ DynMCQquestionTest.get_absolute_url_question }}'>Retour</a></p>
+		<h1>Passing Test : {{ DynMCQTestInfo.id_test }} Title : {{ DynMCQTestInfo.title }}</h1>
+		
+		<h2>Question {{DynMCQquestionTest.q_num}} : {{DynMCQquestionTest.q_text}}</h2>
+		<h1>Réponse {{DynMCQanswerTest.ans_num}} : {{ DynMCQanswerTest.ans_text }}</h1>
+		{% if DynMCQanswerTest.right_ans == 1 %}
+			<p>Bonne réponse</p>
+		{% else %}
+			<p>Mauvaise réponse</p>
+		{% endif %}
+		<br/>
+		<p>Réponse : {{form.ans_text}}</p>
+		<p>Bonne Réponse : {{form.right_ans}}</p>
+		<input type='submit', value='Save'/>
+	</form>
+</div>
+{% endblock content %}
+

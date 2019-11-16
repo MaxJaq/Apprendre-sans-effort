@@ -9,6 +9,10 @@ from .models import (
 	DynTest,
 	Pass_DynTest,
 	DynTestInfo,
+	DynMCQInfo,
+	DynMCQquestion,
+	DynMCQanswer,
+	Pass_DynMCQTest,
 )
 
 from .backend_code import compare_input_wt_expected as compare
@@ -299,6 +303,70 @@ class Pass_DynTestForm(forms.ModelForm):
 		fields = [
 			'id_student',
 			'r_text',
+		]
+		
+class DynMCQTestInfoForm(forms.ModelForm):
+	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
+	title = forms.CharField(required=True)
+	nb_q = forms.CharField(required=True)
+	class Meta:
+		model = DynMCQInfo
+		fields = [
+			'id_test',
+			'title',
+			'nb_q',
+		]
+		
+class DynMCQquestionForm(forms.ModelForm):
+	# Properly displayed
+	q_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	nb_ans = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':25}))
+	activated = forms.IntegerField(widget=forms.TextInput(attrs={'placeholder':'0 if no, 1 if yes'}))
+
+	# Robustly Handled
+	class Meta:
+		model = DynMCQquestion
+		fields = [
+			'q_text',
+			'nb_ans',
+			'activated',
+		]
+		
+class DynMCQquestionForm_question(forms.ModelForm):
+	# Properly displayed
+	q_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	activated = forms.IntegerField(widget=forms.TextInput(attrs={'placeholder':'0 if no, 1 if yes'}))
+
+	# Robustly Handled
+	class Meta:
+		model = DynMCQquestion
+		fields = [
+			'q_text',
+			'activated',
+		]
+
+class DynMCQanswerForm(forms.ModelForm):
+	# Properly displayed
+	ans_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	right_ans = forms.IntegerField(widget=forms.TextInput(attrs={'placeholder':'0 if no, 1 if yes'}))
+	
+	# Robustly Handled
+	class Meta:
+		model = DynMCQanswer
+		fields = [
+			'ans_text',
+			'right_ans',
+		]
+
+class Pass_DynMCQTestForm(forms.ModelForm):
+	id_student = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Student ID'}))
+	r_num = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':10}))
+
+	class Meta:
+		model = Pass_DynMCQTest
+		fields = [
+			'id_student',
+			'r_num',
 		]
 
 class PassTestMcqForm(forms.ModelForm):
