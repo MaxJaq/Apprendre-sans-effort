@@ -9,6 +9,9 @@
 		{% for instance in DynMCQquestionTestList %}
 			<p><a href='{{ instance.get_absolute_url_question }}'>Question {{ instance.q_num }} : </a>{{instance.q_text}}</p>
 		{% endfor %}
+		<br/>
+		<br/>
+		<h4><a href='{{ DynMCQTestInfo.get_absolute_url_add_question }}'>Ajouter une nouvelle question</a></h4>
 	</form>
 </div>
 {% endblock content %}

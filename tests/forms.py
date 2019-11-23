@@ -13,6 +13,7 @@ from .models import (
 	DynMCQquestion,
 	DynMCQanswer,
 	Pass_DynMCQTest,
+	Pass_DynMCQTest_Info,
 )
 
 from .backend_code import compare_input_wt_expected as compare
@@ -359,14 +360,21 @@ class DynMCQanswerForm(forms.ModelForm):
 		]
 
 class Pass_DynMCQTestForm(forms.ModelForm):
-	id_student = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Student ID'}))
-	r_num = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':10}))
+	r_ans = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':10}))
 
 	class Meta:
 		model = Pass_DynMCQTest
 		fields = [
+			'r_ans',
+		]
+		
+class Pass_DynMCQTestInfoForm(forms.ModelForm):
+	id_student = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'Student ID'}))
+
+	class Meta:
+		model = Pass_DynMCQTest_Info
+		fields = [
 			'id_student',
-			'r_num',
 		]
 
 class PassTestMcqForm(forms.ModelForm):

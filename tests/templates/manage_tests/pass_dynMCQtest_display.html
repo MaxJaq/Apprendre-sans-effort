@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='body'>
+	<h1>Passing Test {{Pass_DynMCQInfo.id_test}} : {{Pass_DynMCQInfo.title}} </h1>
+	<h3>Student : {{ Pass_DynMCQInfo.id_student }}</h3>
+	{%for instance in Pass_DynMCQtest_List%}
+		<p>Réponse {{instance.q_num}} : {{instance.r_ans}}</p>
+	{%endfor%}
+	<h3>Note : {{ Pass_DynMCQInfo.mark }} / {{DynMCQTestInfo.nb_q}}</h3>
+</div>
+
+{% endblock content %}

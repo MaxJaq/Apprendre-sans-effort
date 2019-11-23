@@ -142,6 +142,9 @@ class DynMCQInfo(models.Model):
 	def get_absolute_url_q_menu(self):
 		return reverse('tests:SelectMenu DynMCQquestion', kwargs={'input_id_test': self.id_test})
 		
+	def get_absolute_url_add_question(self):
+		return reverse('tests:AddQuestion DynMCQquestion', kwargs={'input_id_test': self.id_test})
+		
 		
 class DynMCQquestion(models.Model):
 	id_test = models.CharField(max_length=10, null=True)
@@ -160,6 +163,12 @@ class DynMCQquestion(models.Model):
 	def get_absolute_url_edit(self):
 		return reverse('tests:Edit DynMCQquestion', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num})
 		
+	def get_absolute_url_delete(self):
+		return reverse('tests:Delete DynMCQquestion', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num})
+		
+	def get_absolute_url_add_answer(self):
+		return reverse('tests:AddAnswer DynMCQanswer', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num})
+		
 	class Meta:
 		unique_together = ('id_test', 'q_num')
 		
@@ -176,9 +185,23 @@ class DynMCQanswer(models.Model):
 	def get_absolute_url_edit(self):
 		return reverse('tests:Edit DynMCQanswer', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num,'input_ans_num': self.ans_num})
 		
-class Pass_DynMCQTest(models.Model):
+	def get_absolute_url_delete(self):
+		return reverse('tests:Delete DynMCQanswer', kwargs={'input_id_test': self.id_test,'input_q_num': self.q_num,'input_ans_num': self.ans_num})
+		
+class Pass_DynMCQTest_Info(models.Model):
 	id_test = models.CharField(max_length=10, null=True)
 	id_student = models.CharField(max_length=10)
+	mark = models.IntegerField(null = True)
+		
+	def get_absolute_url(self):
+		return reverse('tests:Pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student})
+		
+	def get_absolute_url_display(self):
+		return reverse('tests:Display pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student})
+		
+class Pass_DynMCQTest(models.Model):
+	id_test = models.CharField(max_length=10, null=True)
+	id_student = models.CharField(max_length=10, null=True)
 	q_num = models.CharField(max_length=10, null=True)
 	r_ans = models.TextField()
 
