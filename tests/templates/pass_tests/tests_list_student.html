@@ -39,6 +39,15 @@
                 <!-- {{ instance.description }} -->
 				</p>
 			{% endfor %}
+			
+		<h2>Dynamic MCQ TEST :</h2>
+	
+			{% for instance in testlist_dynmcqtestinfo_all %}
+				<p>
+                    <a href="{% url 'tests:Menu Pass dynmcqtest' input_id_test=instance.id_test %}">Test {{ instance.id_test }}</a>: {{ instance.title }}
+                <!-- {{ instance.description }} -->
+				</p>
+			{% endfor %}
 
 </div>
 
