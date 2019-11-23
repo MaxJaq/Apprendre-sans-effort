@@ -14,7 +14,7 @@
 		{% endif %}
 		
 		{% if empty_question is False %}
-			<h3>Question : {{ DynMCQquestionTest.q_text }}&nbsp &nbsp &nbsp <a href='{{ DynMCQquestionTest.get_absolute_url_edit }}'>EDIT</a></h3>
+			<h3>Question : {{ DynMCQquestionTest.q_text }}&nbsp &nbsp &nbsp <a href='{{ DynMCQquestionTest.get_absolute_url_edit }}'>Edit</a>&nbsp &nbsp &nbsp <a href='{{ DynMCQquestionTest.get_absolute_url_delete }}'>Delete</a></h3>
 			<p>Nombre de réponses: {{ DynMCQquestionTest.nb_ans }}</p>
 		{% endif %}
 		<br/>
@@ -25,12 +25,15 @@
 		
 		{% if empty_answer is False %}
 			{% for instance in DynMCQanswerTest_List %}
-				<h4>Réponse {{instance.ans_num}} : {{instance.ans_text}}&nbsp &nbsp &nbsp <a href='{{ instance.get_absolute_url_edit }}'>EDIT</a></h4>
+				<h4>Réponse {{instance.ans_num}} : {{instance.ans_text}}&nbsp &nbsp &nbsp <a href='{{ instance.get_absolute_url_edit }}'>Edit</a>&nbsp &nbsp &nbsp <a href='{{ instance.get_absolute_url_delete }}'>Delete</a></h4>
 				{% if instance.right_ans == 1 %}
 					<p>Bonne réponse</p>
 				{% endif %}
 				<br/>
 			{% endfor %}
+			<br/>
+			<br/>
+			<p><a href='{{ DynMCQquestionTest.get_absolute_url_add_answer }}'>Ajouter une nouvelle réponse</a></p>
 		{% endif %}
 		<br/>
 
