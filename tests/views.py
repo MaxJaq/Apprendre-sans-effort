@@ -269,6 +269,31 @@ def pass_dynMCQtest_display_view(request,input_id_test,input_id_student):
 	}
 	return render(request, 'manage_tests/pass_dynMCQtest_display.html', context)
 	
+def DynMCQtest_display_view(request, input_id_test):
+	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
+	DynMCQquestions = DynMCQquestion.objects.filter(id_test = input_id_test)
+	DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test)
+	
+	#On met les questions dans une liste
+	DynMCQquestions_List = []
+	for instance in DynMCQquestions:
+		DynMCQquestions_List.append(instance)
+		
+	#On ordonne les questions et les réponses dans une même liste pour l'affichage
+	Questions_Answers_List = []
+	for question in DynMCQquestions:
+		Questions_Answers_List.append(question)
+		DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = question.q_num)
+		for answer in DynMCQanswers:
+			Questions_Answers_List.append(answer)
+			
+	context = {
+		'DynMCQquestions_List':DynMCQquestions_List,
+		'DynMCQTestInfo':DynMCQTestInfo,
+		'Questions_Answers_List': Questions_Answers_List,
+	}
+	return render(request, 'manage_tests/dynmcqtest_display.html', context)
+	
 def Edit_DynMCQquestion_view(request,input_id_test,input_q_num):
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
 	DynMCQquestionTest = get_object_or_404(DynMCQquestion, id_test=input_id_test, q_num = input_q_num)
@@ -708,12 +733,14 @@ def tests_list_teacher_view(request):
 	testlist_mcq = Test_mcq_end_session.objects.all()
 	testlist_mcqtest = MCQTest.objects.all()
 	testlist_dyntestinfo_all = DynTestInfo.objects.all()
+	testlist_dynmcqtestinfo_all = DynMCQInfo.objects.all()
 
 	context = {
 		'tests_list': tests_list_normal_questions,
 		'tests_mcq_list': testlist_mcq,
 		'tests_mcqtest_list': testlist_mcqtest,
 		'testlist_dyntestinfo_all':testlist_dyntestinfo_all,
+		'testlist_dynmcqtestinfo_all':testlist_dynmcqtestinfo_all,
 	}
 	return render(request, 'manage_tests/tests_list_teacher.html', context)
 
@@ -802,14 +829,15 @@ def pass_dyntest_display_view(request, input_id_student):
 	return render(request, 'manage_tests/pass_dyntest_display.html', context)
 	
 def dashboard_view(request):
-	testlist_mcqtest = MCQTest.objects.all()
+	testlist_dynmcqtest = DynMCQInfo.objects.all()
 	context = {
-		'tests_mcqtest_list': testlist_mcqtest
+		'testlist_dynmcqtest': testlist_dynmcqtest
 	}
 	return render(request, 'manage_tests/dashboard.html', context)
 	
 	
 def statistics_view(request, input_id_test):
+	"""
 	mcqtest = get_object_or_404(MCQTest, id_test=input_id_test)
 	pass_mcqtest_list_all = Pass_MCQTest_end_session.objects.all()
 	pass_mcqtest_list = []
@@ -844,75 +872,47 @@ def statistics_view(request, input_id_test):
 		marks_list.append(pass_mcqtest_list[i].mark)
 		statistiques_notes[note] += 1
 		i += 1
-		
-	#Calcul de la moyenne et des notes hautes et basses
-	moyenne_mcqtest = 0
-	note_plus_basse = 5
-	note_plus_haute = 0
+	"""
+	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
+	PassDynMCQInfo = Pass_DynMCQTest_Info.objects.filter(id_test = input_id_test)
+	
+	PassDynMCQInfo_List = []
+	for instance in PassDynMCQInfo:
+		PassDynMCQInfo_List.append(instance)
+	marks_list = []
+	
+	statistiques_notes = []
 	i = 0
-	while i < len(pass_mcqtest_list):
-		moyenne_mcqtest += pass_mcqtest_list[i].mark
-		if pass_mcqtest_list[i].mark < note_plus_basse:
-			note_plus_basse = pass_mcqtest_list[i].mark
-		if pass_mcqtest_list[i].mark > note_plus_haute:
-			note_plus_haute = pass_mcqtest_list[i].mark
+	while i <= int(DynMCQTestInfo.nb_q):
+		statistiques_notes.append(0)
 		i += 1
-	moyenne_mcqtest /= len(pass_mcqtest_list)
-	moyenne_mcqtest="%.2f" % moyenne_mcqtest
-	nb_test = len(pass_mcqtest_list)
+		
+	for instance in PassDynMCQInfo_List:
+		statistiques_notes[instance.mark] += 1
+		marks_list.append(instance.mark)
+	
+	#Calcul de la moyenne et des notes hautes et basses
+	note_plus_basse = Note_plus_basse(marks_list)
+	note_plus_haute = Note_plus_haute(marks_list)
+
+	moyenne_mcqtest = Moyenne(marks_list)
+	nb_test = len(PassDynMCQInfo_List)
 	
 	#Calcul du 1er et du 3eme quartile du test
-	marks_list.sort()
-	if len(marks_list)%4 == 0:
-		q1=marks_list[len(marks_list)//4-1]
-		q3=marks_list[3*len(marks_list)//4-1]
-	else:
-		q1=marks_list[len(marks_list)//4]
-		q3=marks_list[3*len(marks_list)//4]
+	q1 = Q1(marks_list)
+	q3 = Q3(marks_list)
 
     #Calcul de la mediane
-	marks_list.sort()
-	if len(marks_list)%2 == 0:
-		m=((marks_list[(len(marks_list)-1)//2]+marks_list[len(marks_list)//2])/2)
-	else:
-		m = marks_list[len(marks_list)//2]
+	m = Mediane(marks_list)
 		
 	#Calcul des fréquences
-	total_freq = []
-	somme_freq = 0
-	i = 0
-	while i < len(statistiques_notes):
-		temp_freq = 100 * statistiques_notes[i] / len(pass_mcqtest_list)
-		somme_freq += temp_freq
-		temp_freq = "%.2f" % temp_freq
-		som_freq = "%.2f" % somme_freq
-		total_freq.append((temp_freq,som_freq))
-		i += 1
+	total_freq = Frequences(statistiques_notes,PassDynMCQInfo_List)
 	
 	#On met dans une liste les statistiques liés à chaque question
-	stats_question = [0,0,0,0,0]
-	i = 0
-	while i < len(pass_mcqtest_list):
-		if pass_mcqtest_list[i].q1 == mcqtest.r1:
-			stats_question[0] += 1
-		if pass_mcqtest_list[i].q2 == mcqtest.r2:
-			stats_question[1] += 1
-		if pass_mcqtest_list[i].q3 == mcqtest.r3:
-			stats_question[2] += 1
-		if pass_mcqtest_list[i].q4 == mcqtest.r4:
-			stats_question[3] += 1
-		if pass_mcqtest_list[i].q5 == mcqtest.r5:
-			stats_question[4] += 1
-		i += 1
-		
+	stats_question = Statistique_question(DynMCQTestInfo)
+	
 	#Pourcentage des statistiques par question
-	pourcentage_question = []
-	i = 0
-	while i < len(stats_question):
-		pourcentage = 100*stats_question[i]/len(pass_mcqtest_list)
-		pourcentage = "%.2f" % pourcentage
-		pourcentage_question.append(pourcentage)
-		i += 1
+	pourcentage_question = Pourcentage_stats_question(stats_question,PassDynMCQInfo_List)
 		
 	total_statistics_question = []
 	i = 0
@@ -921,13 +921,13 @@ def statistics_view(request, input_id_test):
 		i += 1
 	
 	#Création des graphs
-	GraphsQuestions(stats_question,pass_mcqtest_list)
-	GraphsNote(total_freq)
+	GraphsQuestions(stats_question,int(DynMCQTestInfo.nb_q))
+	GraphsNote(total_freq,int(DynMCQTestInfo.nb_q))
 	GraphsBoxplot(marks_list)
 
 	context = {
-		'mcqtest': mcqtest,
-		'pass_mcqtest_list': pass_mcqtest_list,
+		'DynMCQTestInfo':DynMCQTestInfo,
+		'PassDynMCQInfo_List': PassDynMCQInfo_List,
 		'moyenne_mcqtest' : moyenne_mcqtest,
 		'nb_test' : nb_test,
 		'note_plus_haute' : note_plus_haute,
@@ -940,12 +940,99 @@ def statistics_view(request, input_id_test):
 	}
 	return render(request, 'manage_tests/statistics.html', context)
 	
+def Moyenne(marks_list):
+	moyenne = 0
+	for mark in marks_list:
+		moyenne += mark
+	moyenne /= len(marks_list)
+	moyenne="%.2f" % moyenne
+	return moyenne
+	
+def Note_plus_basse(marks_list):
+	note_plus_basse = 1000
+	for mark in marks_list:
+		if mark < note_plus_basse:
+			note_plus_basse = mark
+	return note_plus_basse
+	
+def Note_plus_haute(marks_list):
+	note_plus_haute = 0
+	for mark in marks_list:
+		if mark > note_plus_haute:
+			note_plus_haute = mark
+	return note_plus_haute
+	
+def Q1(marks_list):
+	marks_list.sort()
+	if len(marks_list)%4 == 0:
+		q1=marks_list[len(marks_list)//4-1]
+	else:
+		q1=marks_list[len(marks_list)//4]
+	return q1
+	
+def Q3(marks_list):
+	marks_list.sort()
+	if len(marks_list)%4 == 0:
+		q3=marks_list[3*len(marks_list)//4-1]
+	else:
+		q3=marks_list[3*len(marks_list)//4]
+	return q3
+	
+def Mediane(marks_list):
+	marks_list.sort()
+	if len(marks_list)%2 == 0:
+		m=((marks_list[(len(marks_list)-1)//2]+marks_list[len(marks_list)//2])/2)
+	else:
+		m = marks_list[len(marks_list)//2]
+	return m
+	
+def Frequences(statistiques_notes,PassDynMCQInfo_List):
+	total_freq = []
+	somme_freq = 0
+	for note in statistiques_notes:
+		temp_freq = 100 * note / len(PassDynMCQInfo_List)
+		somme_freq += temp_freq
+		temp_freq = "%.2f" % temp_freq
+		som_freq = "%.2f" % somme_freq
+		total_freq.append((temp_freq,som_freq))
+	return total_freq
+	
+def Statistique_question(DynMCQTestInfo):
+	stats_question = []
+	i = 0
+	while i < int(DynMCQTestInfo.nb_q):
+		stats_question.append(0)
+		i += 1
+		
+	passdynmcqtest = Pass_DynMCQTest.objects.filter(id_test = DynMCQTestInfo.id_test)
+	passdynmcqtest_List = []
+	for instance in passdynmcqtest:
+		passdynmcqtest_List.append(instance)
+		
+	for passdynmcq in passdynmcqtest_List:
+		tmp_dynmcqtest = get_object_or_404(DynMCQanswer,id_test = DynMCQTestInfo.id_test, q_num = passdynmcq.q_num, right_ans = 1)
+		if(int(passdynmcq.r_ans) == tmp_dynmcqtest.ans_num):
+			stats_question[tmp_dynmcqtest.q_num-1] += 1
+	return stats_question
+	
+def Pourcentage_stats_question(stats_question,PassDynMCQInfo_List):
+	pourcentage_question = []
+	for stat in stats_question:
+		pourcentage = 100*stat/len(PassDynMCQInfo_List)
+		pourcentage = "%.2f" % pourcentage
+		pourcentage_question.append(pourcentage)
+	return pourcentage_question
+	
 #Graphique statistiques par question
-def GraphsQuestions(stats_question,pass_mcqtest_list):
+def GraphsQuestions(stats_question, nb_q):
 	plt.rcdefaults()
 	fig, ax = plt.subplots()
 
-	questions = ('q1', 'q2', 'q3', 'q4', 'q5')
+	questions = []
+	i = 1
+	while i <= nb_q:
+		questions.append("q"+str(i))
+		i += 1
 	y_pos = np.arange(len(stats_question))
 	performance = stats_question
 
@@ -958,8 +1045,12 @@ def GraphsQuestions(stats_question,pass_mcqtest_list):
 	plt.savefig('./pages/static/images/GraphsQuestions.png')
 	
 #Graphique statistiques des notes
-def GraphsNote(total_freq):
-	labels = '0/5', '1/5', '2/5', '3/5', '4/5', '5/5'
+def GraphsNote(total_freq,nb_q):
+	labels = []
+	i = 0
+	while i <= nb_q:
+		labels.append(str(i)+"/"+str(nb_q))
+		i += 1
 	sizes = []
 	for q in total_freq:
 		sizes.append(q[0])

@@ -145,6 +145,12 @@ class DynMCQInfo(models.Model):
 	def get_absolute_url_add_question(self):
 		return reverse('tests:AddQuestion DynMCQquestion', kwargs={'input_id_test': self.id_test})
 		
+	def get_absolute_url_display(self):
+		return reverse('tests:Display DynMCQtest', kwargs={'input_id_test': self.id_test})
+		
+	def get_statistics(self):
+		return reverse('tests:Statistics', kwargs={'input_id_test': self.id_test})
+		
 		
 class DynMCQquestion(models.Model):
 	id_test = models.CharField(max_length=10, null=True)

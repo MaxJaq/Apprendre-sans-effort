@@ -27,6 +27,7 @@ from tests.views import (
 	pass_test_display_view,
 	pass_dyntest_display_view,
 	pass_dynMCQtest_display_view,
+	DynMCQtest_display_view,
 	
 	test_mcqtest_pass_view,
 	test_pass_view,
@@ -74,6 +75,7 @@ urlpatterns = [
 	path('manage/display/passtest/<str:input_id_test>/', pass_test_display_view, name='Display pass test'),
 	path('manage/display/passdyntest/<str:input_id_student>/', pass_dyntest_display_view, name='Display pass dyntest'),
 	path('manage/display/passdynMCQtest/<str:input_id_test>/<str:input_id_student>/', pass_dynMCQtest_display_view, name='Display pass dynmcqtest'),
+	path('manage/display/dynmcqtest/<str:input_id_test>/', DynMCQtest_display_view, name='Display DynMCQtest'),
 	
 	path('manage/list/test', tests_list_teacher_view, name='List tests teacher'),
 	path('manage/list/pass_test', pass_testslist_teacher_view, name='List pass tests teacher'),
