@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+	{{ form_answers.management_form }}	
+	{% csrf_token %}
+	<h1>Passing Test {{ DynMCQTestInfo.id_test }} : {{DynMCQTestInfo.title}}</h1>
+	{%for instance in Questions_Answers_List%}
+		{% if instance in DynMCQquestions_List %}
+			<h3>Question {{instance.q_num}} : {{instance.q_text}}</h3>
+		{% else %}
+			{% if instance.right_ans == 1 %}
+				<p><b><u>Réponse {{instance.ans_num}} : {{instance.ans_text}}</u></b></p>
+			{% else %}
+				<p>Réponse {{instance.ans_num}} : {{instance.ans_text}}</p>
+			{% endif %}
+		{% endif %}
+	{%endfor%}
+	<br/>
+</div>
+
+{% endblock content %}
