@@ -7,10 +7,8 @@
 		<br/>
 		{% csrf_token %}
 		
-		{% if empty_passdynMCQtest is True %}
-			<p>Id student : {{form.id_student}}</p>
-			<input type='submit', value='Save'/>
-		{% else %}
+		{% if empty_passdynMCQtest is False %}
+			<p>Username : {{Pass_DynMCQInfo.id_student}}</p>
 			<h3><a href='{{ Pass_DynMCQInfo.get_absolute_url }}'>Commencer le Test</a></h3>
 		{% endif %}
 	</form>
