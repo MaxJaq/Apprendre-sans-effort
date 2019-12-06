@@ -1,6 +1,11 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from pages.views import home_view, contact_view
 from tests.views import (
+	login_view,
+	logout_view,
+	register_view,
+	
 	test_create_view,
 	test_standard_create_view,
 	test_mcq_create_view,
@@ -48,6 +53,10 @@ from tests.views import (
 app_name = 'tests'
 
 urlpatterns = [
+	path('login/', login_view, name='login'),
+	path('logout/', logout_view, name='logout'),
+	path('register/', register_view, name='register'),
+
 	# Teacher
 	path('manage/create/', test_create_view, name='Create test'),
 	path('manage/create/standard/', test_standard_create_view, name='Create standard test'),

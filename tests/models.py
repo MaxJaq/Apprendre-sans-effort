@@ -1,8 +1,21 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 
 # Create your models here.
+"""
+class Student(Group):
+    class Meta:
+		name = 'Student'
+        permissions = [('can_pass_tests', 'Can pass tests')]
 
+class Teacher(Group):
+    class Meta:
+		name = 'Teacher'
+        permissions = [('can_create_tests', 'Can create tests'),('can_see_tests', 'Can see tests'),('can_see_stats', 'Can see stats')]
+"""
+		
 ## Standard tests ##
 
 class Test_end_session(models.Model):

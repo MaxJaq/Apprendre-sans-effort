@@ -1,13 +1,77 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.forms import formset_factory
 from .forms import TestForm, PassTestForm, TestMcqForm, PassTestMcqForm, MCQTestForm, PassMCQTestForm, DynTestForm, Pass_DynTestForm,DynTestInfoForm,DynMCQTestInfoForm,DynMCQquestionForm,DynMCQanswerForm,Pass_DynMCQTestForm,DynMCQquestionForm_question,Pass_DynMCQTestInfoForm
 from .models import Test_end_session, Pass_test_end_session, Test_mcq_end_session, MCQTest, Pass_MCQTest_end_session, DynTest,Pass_DynTest,DynTestInfo,DynMCQInfo,DynMCQquestion,DynMCQanswer,Pass_DynMCQTest,Pass_DynMCQTest_Info
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from django.contrib.auth.decorators import login_required,permission_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.contrib.auth.models import User,Group,Permission
 
+def register_view(request):
+	if request.method == 'POST':
+		#Récupération des champs de l'utilisateur
+		last_name = request.POST['last_name']
+		first_name = request.POST['first_name']
+		email = request.POST['email']
+		username = request.POST['username']
+		password = request.POST['password']
+		function = request.POST['function']
+		
+		#Si l'utilisateur est déjà pris, on affiche un message d'erreur et on réaffiche la page
+		if User.objects.filter(username=username).exists():
+			messages.info(request,'Username taken')
+			return redirect('tests:register')
+		#Même principe pour l'email
+		elif User.objects.filter(email=email).exists():
+			messages.info(request,'Email already used')
+			return redirect('tests:register')
+		#Vérification que l'utilisateur écrit bien Teacher ou Student
+		elif function != "Teacher" and function != "Student":
+			messages.info(request,'Function not correct')
+			return redirect('tests:register')
+		#Création de l'utilisateur
+		else:
+			user = User.objects.create_user(username=username,password=password,last_name=last_name,first_name=first_name,email=email)
+			#On associe le bon Groupe de Permissions à l'utilisateur
+			if function == "Student":
+				student = Group.objects.get(name='Student')
+				user.groups.add(student)
+			else:
+				teacher = Group.objects.get(name='Teacher')
+				user.groups.add(teacher)
+			#On enregistre l'utilisateur dans la base de donnée et on renvoie à la page d'accueil
+			user.save()
+			return redirect('/')
+	else:
+		return render(request,'register.html')
+
+def login_view(request):
+	if request.method == 'POST':
+		#Récupération des champs d'authentification
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(username=username,password=password)
+		#Si l'utilisateur existe, on authentifie et on renvoie à la page d'accueil
+		if user is not None:
+			login(request,user)
+			return redirect('/')
+		#Sinon on affiche un message d'erreur et on réaffiche la page
+		else:
+			messages.info(request,'Invalid user')
+			return redirect('tests:login')
+	else:
+		return render(request,'login.html')
+		
+def logout_view(request):
+	logout(request)
+	return redirect('/')
 
 # Create your views here.
+@login_required
+@permission_required('tests.can_create_tests', raise_exception=True)
 def test_create_view(request, *args, **kwargs):
 	""" Show page which can then redirect toward standard and mcq creation pages """
 	return render(request, 'manage_tests/test_create.html', {})
@@ -172,25 +236,22 @@ def DynMCQanswer_create_view(request, input_id_test, input_q_num):
 def DynMCQTest_pass_menu_view(request, input_id_test):
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
 	empty_passdynMCQtest = True
-	
 	Pass_DynMCQInfo = []
-	#Formulaire du Pass_DynMCQTestInfoForm
-	form = Pass_DynMCQTestInfoForm(request.POST or None)
-	#Formulaire des infos du pass_dyntest
-	if form.is_valid():
-		passdynmcqtest = form.save(commit = False)
-		passdynmcqtest.id_test = input_id_test
-		passdynmcqtest.mark = 0
-		input_id_student = passdynmcqtest.id_student
-		passdynmcqtest.save()
-		form = Pass_DynMCQTestInfoForm()
+	#On regarde si le Pass_DynMCQTestInfo a déjà été créé, si oui on le récupère
+	if Pass_DynMCQTest_Info.objects.filter(id_test=input_id_test,id_student=request.user.username).exists():
 		empty_passdynMCQtest = False
-		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student)
+		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username)
+	
+	#Sinon on créé un Pass_DynMCQTestInfo en récupérant le username de l'utilisateur
+	if empty_passdynMCQtest:
+		passdynmcqtest = Pass_DynMCQTest_Info(id_test=input_id_test,id_student=request.user.username,mark = 0)
+		passdynmcqtest.save()
+		empty_passdynMCQtest = False
+		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username)
 			
 	context = {
 		'DynMCQTestInfo' : DynMCQTestInfo,
 		'empty_passdynMCQtest' : empty_passdynMCQtest,
-		'form': form,
 		'Pass_DynMCQInfo' : Pass_DynMCQInfo,
 	}
 	return render(request, 'pass_tests/menu_pass_dynmcqtest.html',context)
@@ -703,7 +764,9 @@ def dyntest_pass_view(request, input_id_test):
 		'form_questions': form_questions,
 	}
 	return render(request, 'pass_tests/dyntest_pass.html', context)
-	
+
+@login_required
+@permission_required('tests.can_see_tests', raise_exception=True)
 def pass_testslist_teacher_view(request):
 	# List all the pass tests of the db
 	pass_tests_list_normal_questions = Pass_test_end_session.objects.all()
@@ -725,8 +788,8 @@ def pass_testslist_teacher_view(request):
 	}
 	return render(request, 'manage_tests/pass_tests_list_teacher.html', context)
 
-
-
+@login_required
+@permission_required('tests.can_see_tests', raise_exception=True)
 def tests_list_teacher_view(request):
 	# List all the tests of the db
 	tests_list_normal_questions = Test_end_session.objects.all()
@@ -744,6 +807,8 @@ def tests_list_teacher_view(request):
 	}
 	return render(request, 'manage_tests/tests_list_teacher.html', context)
 
+@login_required
+@permission_required('tests.can_pass_tests', raise_exception=True)
 def tests_list_student_view(request):
 	# List all the tests of the db
 	tests_list_normal_questions = Test_end_session.objects.all()
@@ -827,7 +892,9 @@ def pass_dyntest_display_view(request, input_id_student):
 		'pass_dyntest_list': pass_dyntest_list
 	}
 	return render(request, 'manage_tests/pass_dyntest_display.html', context)
-	
+
+@login_required
+@permission_required('tests.can_see_stats', raise_exception=True)
 def dashboard_view(request):
 	testlist_dynmcqtest = DynMCQInfo.objects.all()
 	context = {
