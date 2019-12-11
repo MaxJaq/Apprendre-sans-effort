@@ -73,8 +73,20 @@ def logout_view(request):
 @login_required
 @permission_required('tests.can_create_tests', raise_exception=True)
 def test_create_view(request, *args, **kwargs):
-	""" Show page which can then redirect toward standard and mcq creation pages """
-	return render(request, 'manage_tests/test_create.html', {})
+	tests_list_normal_questions = Test_end_session.objects.all()
+	testlist_mcq = Test_mcq_end_session.objects.all()
+	testlist_mcqtest = MCQTest.objects.all()
+	testlist_dyntestinfo_all = DynTestInfo.objects.all()
+	testlist_dynmcqtestinfo_all = DynMCQInfo.objects.all()
+
+	context = {
+		'tests_list': tests_list_normal_questions,
+		'tests_mcq_list': testlist_mcq,
+		'tests_mcqtest_list': testlist_mcqtest,
+		'testlist_dyntestinfo_all':testlist_dyntestinfo_all,
+		'testlist_dynmcqtestinfo_all':testlist_dynmcqtestinfo_all,
+	}
+	return render(request, 'manage_tests/test_create.html', context)
 
 
 def test_standard_create_view(request):
