@@ -209,23 +209,29 @@ class DynMCQanswer(models.Model):
 		
 class Pass_DynMCQTest_Info(models.Model):
 	id_test = models.CharField(max_length=10, null=True)
-	id_student = models.CharField(max_length=10)
+	id_student = models.CharField(max_length=10, null=True)
+	attempt = models.IntegerField(null = True)
 	mark = models.IntegerField(null = True)
+	time = models.CharField(max_length=15, null=True)
+	
+	class Meta:
+		unique_together = ('id_test', 'id_student','attempt')
 		
 	def get_absolute_url(self):
-		return reverse('tests:Pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student})
+		return reverse('tests:Pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student,'input_attempt':self.attempt})
 		
 	def get_absolute_url_display(self):
-		return reverse('tests:Display pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student})
+		return reverse('tests:Display pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student,'input_attempt':self.attempt})
 		
 class Pass_DynMCQTest(models.Model):
 	id_test = models.CharField(max_length=10, null=True)
 	id_student = models.CharField(max_length=10, null=True)
+	attempt = models.IntegerField(null = True)
 	q_num = models.CharField(max_length=10, null=True)
 	r_ans = models.TextField()
 
 	class Meta:
-		unique_together = ('id_test', 'id_student','q_num')
+		unique_together = ('id_test', 'id_student','attempt','q_num')
 
 class DynTestInfo(models.Model):
 	id_test = models.CharField(max_length=10, null=False, primary_key=True)

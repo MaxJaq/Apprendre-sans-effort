@@ -4,6 +4,7 @@ from .forms import TestForm, PassTestForm, TestMcqForm, PassTestMcqForm, MCQTest
 from .models import Test_end_session, Pass_test_end_session, Test_mcq_end_session, MCQTest, Pass_MCQTest_end_session, DynTest,Pass_DynTest,DynTestInfo,DynMCQInfo,DynMCQquestion,DynMCQanswer,Pass_DynMCQTest,Pass_DynMCQTest_Info
 import matplotlib.pyplot as plt
 import numpy as np
+import datetime
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth import authenticate, login, logout
@@ -248,18 +249,32 @@ def DynMCQanswer_create_view(request, input_id_test, input_q_num):
 def DynMCQTest_pass_menu_view(request, input_id_test):
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
 	empty_passdynMCQtest = True
+	#On récupère les tentatives
+	Pass_DynMCQInfo_filter = Pass_DynMCQTest_Info.objects.filter(id_test=input_id_test,id_student=request.user.username)
+	Pass_DynMCQInfo_List = []
 	Pass_DynMCQInfo = []
-	#On regarde si le Pass_DynMCQTestInfo a déjà été créé, si oui on le récupère
-	if Pass_DynMCQTest_Info.objects.filter(id_test=input_id_test,id_student=request.user.username).exists():
-		empty_passdynMCQtest = False
-		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username)
+	for instance in Pass_DynMCQInfo_filter:
+		Pass_DynMCQInfo_List.append(instance)
+	#On récupère le nombre de tentative de l'élève
+	nb_pass_test = len(Pass_DynMCQInfo_List)
 	
-	#Sinon on créé un Pass_DynMCQTestInfo en récupérant le username de l'utilisateur
+	#On teste si un test a déjà été créé
+	if nb_pass_test > 0:
+		#Si oui, on teste si le pass test a ses réponses remplies -> si l'élève a passé le test
+		if Pass_DynMCQTest.objects.filter(id_test = input_id_test,id_student = request.user.username,attempt = nb_pass_test).exists():
+			#Dans ce cas il faut créé un nouveau pass test en faisant une nouvelle tentative
+			empty_passdynMCQtest = True
+		else:
+			#Sinon on réaffiche la même tentative jusqu'à ce que l'élève le passe
+			Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username,attempt = nb_pass_test)
+			empty_passdynMCQtest = False
+	
+	#On créé une nouvelle tentative de pass test
 	if empty_passdynMCQtest:
-		passdynmcqtest = Pass_DynMCQTest_Info(id_test=input_id_test,id_student=request.user.username,mark = 0)
+		passdynmcqtest = Pass_DynMCQTest_Info(id_test=input_id_test,id_student=request.user.username,attempt = nb_pass_test+1,mark = 0)
 		passdynmcqtest.save()
 		empty_passdynMCQtest = False
-		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username)
+		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username,attempt = nb_pass_test+1)
 			
 	context = {
 		'DynMCQTestInfo' : DynMCQTestInfo,
@@ -268,10 +283,10 @@ def DynMCQTest_pass_menu_view(request, input_id_test):
 	}
 	return render(request, 'pass_tests/menu_pass_dynmcqtest.html',context)
 
-def DynMCQtest_pass_view(request,input_id_test, input_id_student):
+def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt):
 	#Récupération des informations du test
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
-	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student)
+	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student, attempt = input_attempt)
 	DynMCQquestions = DynMCQquestion.objects.filter(id_test = input_id_test)
 	DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test)
 	
@@ -303,12 +318,14 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student):
 	
 		if form_answers.is_valid():
 			question_count = 1
+			Pass_DynMCQInfo.time = datetime.datetime.today()
 			#Remplissage automatique des champs id_test et q_num
 			for instance in form_answers:
 				pass_dynMCQtest = instance.save(commit=False)
 				pass_dynMCQtest.id_test = input_id_test
 				pass_dynMCQtest.id_student = input_id_student
 				pass_dynMCQtest.q_num = question_count
+				pass_dynMCQtest.attempt = input_attempt
 				#On récupère la réponse associé et on test si la réponse est bonne
 				the_answer = get_object_or_404(DynMCQanswer, id_test=input_id_test, q_num = question_count, right_ans = 1)
 				#Si la réponse est bonne, on incrémente la note du test
@@ -327,11 +344,11 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student):
 	}
 	return render(request, 'pass_tests/dynMCQtest_pass.html', context)
 	
-def pass_dynMCQtest_display_view(request,input_id_test,input_id_student):
+def pass_dynMCQtest_display_view(request,input_id_test,input_id_student,input_attempt):
 	# Retrieve and display the requested mcq form
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
-	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student)
-	Pass_DynMCQtest = Pass_DynMCQTest.objects.filter(id_test = input_id_test, id_student = input_id_student)
+	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student,attempt = input_attempt)
+	Pass_DynMCQtest = Pass_DynMCQTest.objects.filter(id_test = input_id_test, id_student = input_id_student,attempt = input_attempt)
 	Pass_DynMCQtest_List = []
 	for instance in Pass_DynMCQtest:
 		Pass_DynMCQtest_List.append(instance)
