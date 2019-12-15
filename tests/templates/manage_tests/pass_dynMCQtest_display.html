@@ -5,6 +5,8 @@
 <div class='body'>
 	<h1>Passing Test {{Pass_DynMCQInfo.id_test}} : {{Pass_DynMCQInfo.title}} </h1>
 	<h3>Student : {{ Pass_DynMCQInfo.id_student }}</h3>
+	<h4>Tentative : {{ Pass_DynMCQInfo.attempt }}</h4>
+	<h4>Time : {{ Pass_DynMCQInfo.time }}</h4>
 	{%for instance in Pass_DynMCQtest_List%}
 		<p>Réponse {{instance.q_num}} : {{instance.r_ans}}</p>
 	{%endfor%}
