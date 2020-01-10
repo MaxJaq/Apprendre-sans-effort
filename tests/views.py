@@ -20,6 +20,8 @@ def register_view(request):
 		username = request.POST['username']
 		password = request.POST['password']
 		function = request.POST['function']
+		group1 = request.POST['group1']
+		group2 = request.POST['group2']
 		
 		#Si l'utilisateur est déjà pris, on affiche un message d'erreur et on réaffiche la page
 		if User.objects.filter(username=username).exists():
@@ -43,6 +45,13 @@ def register_view(request):
 			else:
 				teacher = Group.objects.get(name='Teacher')
 				user.groups.add(teacher)
+			#Groupe de classe de l'élève
+			group_1 = Group.objects.get(name=group1)
+			user.groups.add(group_1)
+			if group2 != "None":
+				group_2 = Group.objects.get(name=group2)
+				user.groups.add(group_2)
+			
 			#On enregistre l'utilisateur dans la base de donnée et on renvoie à la page d'accueil
 			user.save()
 			return redirect('/')
@@ -296,12 +305,9 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		DynMCQquestions_List.append(instance)
 		
 	#On ordonne les questions et les réponses dans une même liste pour l'affichage
-	Questions_Answers_List = []
+	Questions_List = []
 	for question in DynMCQquestions:
-		Questions_Answers_List.append(question)
-		DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = question.q_num)
-		for answer in DynMCQanswers:
-			Questions_Answers_List.append(answer)
+		Questions_List.append(question)
 	
 	nb_questions = DynMCQTestInfo.nb_q
 	#On créé un formulaire groupé de pass_dyntest du nombre de question du test
@@ -312,9 +318,35 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		'form-INITIAL_FORMS': '0',
 		'form-MAX_NUM_FORMS': '',
 	}
+	
 	form_answers = PassDynMCQTestSet()
+	#On récupère les réponses de chaque questions et on les place dans les choix de réponses de l'élève pour les checkbox
+	i = 1
+	for ans in form_answers:
+		choices = []
+		DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = i)
+		#Récupération des réponses dans des sous-listes ('valeur retournée','texte affiché') pour chaque réponse possible
+		for answer in DynMCQanswers:
+			list = []
+			list.append(answer.ans_num)
+			list.append(answer.ans_text)
+			choices.append(list)
+		ans.fields['r_ans'].choices = choices #Assignation des choix
+		i += 1
+		
 	if request.method == 'POST':
 		form_answers = PassDynMCQTestSet(request.POST)
+		i = 1
+		for ans in form_answers:
+			choices = []
+			DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = i)
+			for answer in DynMCQanswers:
+				list = []
+				list.append(answer.ans_num)
+				list.append(answer.ans_text)
+				choices.append(list)
+			ans.fields['r_ans'].choices = choices
+			i += 1
 	
 		if form_answers.is_valid():
 			question_count = 1
@@ -329,7 +361,7 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 				#On récupère la réponse associé et on test si la réponse est bonne
 				the_answer = get_object_or_404(DynMCQanswer, id_test=input_id_test, q_num = question_count, right_ans = 1)
 				#Si la réponse est bonne, on incrémente la note du test
-				if(int(pass_dynMCQtest.r_ans) == the_answer.ans_num):
+				if(int(pass_dynMCQtest.r_ans[2]) == the_answer.ans_num):
 					Pass_DynMCQInfo.mark += 1
 					Pass_DynMCQInfo.save()
 				question_count += 1
@@ -340,7 +372,7 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		'DynMCQTestInfo':DynMCQTestInfo,
 		'form_answers': form_answers,
 		'DynMCQquestions_List' : DynMCQquestions_List,
-		'Questions_Answers_List' : Questions_Answers_List,
+		'Questions_List' : Questions_List,
 	}
 	return render(request, 'pass_tests/dynMCQtest_pass.html', context)
 	
