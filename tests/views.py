@@ -351,7 +351,7 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		if form_answers.is_valid():
 			question_count = 1
 			Pass_DynMCQInfo.time = datetime.datetime.today()
-			#Remplissage automatique des champs id_test et q_num
+			#Remplissage automatique des champs du test
 			for instance in form_answers:
 				pass_dynMCQtest = instance.save(commit=False)
 				pass_dynMCQtest.id_test = input_id_test
@@ -359,9 +359,12 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 				pass_dynMCQtest.q_num = question_count
 				pass_dynMCQtest.attempt = input_attempt
 				#On récupère la réponse associé et on test si la réponse est bonne
-				the_answer = get_object_or_404(DynMCQanswer, id_test=input_id_test, q_num = question_count, right_ans = 1)
+				right_answers = DynMCQanswer.objects.filter(id_test=input_id_test, q_num = question_count, right_ans = 1)
+				num_right_answers = []
+				for ans in right_answers:
+					num_right_answers.append(ans.ans_num)
 				#Si la réponse est bonne, on incrémente la note du test
-				if(int(pass_dynMCQtest.r_ans[2]) == the_answer.ans_num):
+				if check_answer(pass_dynMCQtest.r_ans,num_right_answers):
 					Pass_DynMCQInfo.mark += 1
 					Pass_DynMCQInfo.save()
 				question_count += 1
@@ -375,6 +378,33 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		'Questions_List' : Questions_List,
 	}
 	return render(request, 'pass_tests/dynMCQtest_pass.html', context)
+
+#Fonction qui vérifie qu'une réponse donnée est bonne ou non
+#Elle compare la réponse de l'étudiant à la bonne réponse puis renvoie true ou false
+def check_answer(stu_answer,num_right_answers):
+	right_answer = True
+	num_right_answers.sort()
+	stu_num_answer = []
+	#stu_answer est une chaine de caractères contenant les numéros de la réponse de l'élève
+	#On extrait les numéros de la chaine de caractères dans une liste "stu_num_answer"
+	i = 0
+	while i < len(stu_answer):
+		if stu_answer[i].isdigit():
+			stu_num_answer.append(int(stu_answer[i]))
+		i += 1	
+	stu_num_answer.sort()
+	#Si il n'y a pas le meme nombre de réponses dans les 2 listes alors la réponse de l'élève ne peut pas être bonne
+	if(len(num_right_answers) != len(stu_num_answer)):
+		right_answer = False
+	else:
+		#On compare les 2 listes de réponses
+		i = 0
+		while i < len(num_right_answers):
+			if(num_right_answers[i] != stu_num_answer[i]):
+				right_answer = False
+			i += 1
+	return right_answer
+			
 	
 def pass_dynMCQtest_display_view(request,input_id_test,input_id_student,input_attempt):
 	# Retrieve and display the requested mcq form
@@ -1139,7 +1169,7 @@ def Statistique_question(DynMCQTestInfo):
 		
 	for passdynmcq in passdynmcqtest_List:
 		tmp_dynmcqtest = get_object_or_404(DynMCQanswer,id_test = DynMCQTestInfo.id_test, q_num = passdynmcq.q_num, right_ans = 1)
-		if(int(passdynmcq.r_ans) == tmp_dynmcqtest.ans_num):
+		if(int(passdynmcq.r_ans[2]) == tmp_dynmcqtest.ans_num):
 			stats_question[tmp_dynmcqtest.q_num-1] += 1
 	return stats_question
 	
