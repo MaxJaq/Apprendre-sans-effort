@@ -4,7 +4,6 @@ from .forms import TestForm, PassTestForm, TestMcqForm, PassTestMcqForm, MCQTest
 from .models import Test_end_session, Pass_test_end_session, Test_mcq_end_session, MCQTest, Pass_MCQTest_end_session, DynTest,Pass_DynTest,DynTestInfo,DynMCQInfo,DynMCQquestion,DynMCQanswer,Pass_DynMCQTest,Pass_DynMCQTest_Info
 import matplotlib.pyplot as plt
 import numpy as np
-import datetime
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth import authenticate, login, logout
@@ -20,8 +19,6 @@ def register_view(request):
 		username = request.POST['username']
 		password = request.POST['password']
 		function = request.POST['function']
-		group1 = request.POST['group1']
-		group2 = request.POST['group2']
 		
 		#Si l'utilisateur est déjà pris, on affiche un message d'erreur et on réaffiche la page
 		if User.objects.filter(username=username).exists():
@@ -45,13 +42,6 @@ def register_view(request):
 			else:
 				teacher = Group.objects.get(name='Teacher')
 				user.groups.add(teacher)
-			#Groupe de classe de l'élève
-			group_1 = Group.objects.get(name=group1)
-			user.groups.add(group_1)
-			if group2 != "None":
-				group_2 = Group.objects.get(name=group2)
-				user.groups.add(group_2)
-			
 			#On enregistre l'utilisateur dans la base de donnée et on renvoie à la page d'accueil
 			user.save()
 			return redirect('/')
@@ -83,20 +73,8 @@ def logout_view(request):
 @login_required
 @permission_required('tests.can_create_tests', raise_exception=True)
 def test_create_view(request, *args, **kwargs):
-	tests_list_normal_questions = Test_end_session.objects.all()
-	testlist_mcq = Test_mcq_end_session.objects.all()
-	testlist_mcqtest = MCQTest.objects.all()
-	testlist_dyntestinfo_all = DynTestInfo.objects.all()
-	testlist_dynmcqtestinfo_all = DynMCQInfo.objects.all()
-
-	context = {
-		'tests_list': tests_list_normal_questions,
-		'tests_mcq_list': testlist_mcq,
-		'tests_mcqtest_list': testlist_mcqtest,
-		'testlist_dyntestinfo_all':testlist_dyntestinfo_all,
-		'testlist_dynmcqtestinfo_all':testlist_dynmcqtestinfo_all,
-	}
-	return render(request, 'manage_tests/test_create.html', context)
+	""" Show page which can then redirect toward standard and mcq creation pages """
+	return render(request, 'manage_tests/test_create.html', {})
 
 
 def test_standard_create_view(request):
@@ -258,32 +236,18 @@ def DynMCQanswer_create_view(request, input_id_test, input_q_num):
 def DynMCQTest_pass_menu_view(request, input_id_test):
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
 	empty_passdynMCQtest = True
-	#On récupère les tentatives
-	Pass_DynMCQInfo_filter = Pass_DynMCQTest_Info.objects.filter(id_test=input_id_test,id_student=request.user.username)
-	Pass_DynMCQInfo_List = []
 	Pass_DynMCQInfo = []
-	for instance in Pass_DynMCQInfo_filter:
-		Pass_DynMCQInfo_List.append(instance)
-	#On récupère le nombre de tentative de l'élève
-	nb_pass_test = len(Pass_DynMCQInfo_List)
+	#On regarde si le Pass_DynMCQTestInfo a déjà été créé, si oui on le récupère
+	if Pass_DynMCQTest_Info.objects.filter(id_test=input_id_test,id_student=request.user.username).exists():
+		empty_passdynMCQtest = False
+		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username)
 	
-	#On teste si un test a déjà été créé
-	if nb_pass_test > 0:
-		#Si oui, on teste si le pass test a ses réponses remplies -> si l'élève a passé le test
-		if Pass_DynMCQTest.objects.filter(id_test = input_id_test,id_student = request.user.username,attempt = nb_pass_test).exists():
-			#Dans ce cas il faut créé un nouveau pass test en faisant une nouvelle tentative
-			empty_passdynMCQtest = True
-		else:
-			#Sinon on réaffiche la même tentative jusqu'à ce que l'élève le passe
-			Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username,attempt = nb_pass_test)
-			empty_passdynMCQtest = False
-	
-	#On créé une nouvelle tentative de pass test
+	#Sinon on créé un Pass_DynMCQTestInfo en récupérant le username de l'utilisateur
 	if empty_passdynMCQtest:
-		passdynmcqtest = Pass_DynMCQTest_Info(id_test=input_id_test,id_student=request.user.username,attempt = nb_pass_test+1,mark = 0)
+		passdynmcqtest = Pass_DynMCQTest_Info(id_test=input_id_test,id_student=request.user.username,mark = 0)
 		passdynmcqtest.save()
 		empty_passdynMCQtest = False
-		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username,attempt = nb_pass_test+1)
+		Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = request.user.username)
 			
 	context = {
 		'DynMCQTestInfo' : DynMCQTestInfo,
@@ -292,10 +256,10 @@ def DynMCQTest_pass_menu_view(request, input_id_test):
 	}
 	return render(request, 'pass_tests/menu_pass_dynmcqtest.html',context)
 
-def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt):
+def DynMCQtest_pass_view(request,input_id_test, input_id_student):
 	#Récupération des informations du test
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
-	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student, attempt = input_attempt)
+	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student)
 	DynMCQquestions = DynMCQquestion.objects.filter(id_test = input_id_test)
 	DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test)
 	
@@ -305,9 +269,12 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		DynMCQquestions_List.append(instance)
 		
 	#On ordonne les questions et les réponses dans une même liste pour l'affichage
-	Questions_List = []
+	Questions_Answers_List = []
 	for question in DynMCQquestions:
-		Questions_List.append(question)
+		Questions_Answers_List.append(question)
+		DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = question.q_num)
+		for answer in DynMCQanswers:
+			Questions_Answers_List.append(answer)
 	
 	nb_questions = DynMCQTestInfo.nb_q
 	#On créé un formulaire groupé de pass_dyntest du nombre de question du test
@@ -318,50 +285,22 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		'form-INITIAL_FORMS': '0',
 		'form-MAX_NUM_FORMS': '',
 	}
-	
 	form_answers = PassDynMCQTestSet()
-	#On récupère les réponses de chaque questions et on les place dans les choix de réponses de l'élève pour les checkbox
-	i = 1
-	for ans in form_answers:
-		choices = []
-		DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = i)
-		#Récupération des réponses dans des sous-listes ('valeur retournée','texte affiché') pour chaque réponse possible
-		for answer in DynMCQanswers:
-			list = []
-			list.append(answer.ans_num)
-			list.append(answer.ans_text)
-			choices.append(list)
-		ans.fields['r_ans'].choices = choices #Assignation des choix
-		i += 1
-		
 	if request.method == 'POST':
 		form_answers = PassDynMCQTestSet(request.POST)
-		i = 1
-		for ans in form_answers:
-			choices = []
-			DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = i)
-			for answer in DynMCQanswers:
-				list = []
-				list.append(answer.ans_num)
-				list.append(answer.ans_text)
-				choices.append(list)
-			ans.fields['r_ans'].choices = choices
-			i += 1
 	
 		if form_answers.is_valid():
 			question_count = 1
-			Pass_DynMCQInfo.time = datetime.datetime.today()
 			#Remplissage automatique des champs id_test et q_num
 			for instance in form_answers:
 				pass_dynMCQtest = instance.save(commit=False)
 				pass_dynMCQtest.id_test = input_id_test
 				pass_dynMCQtest.id_student = input_id_student
 				pass_dynMCQtest.q_num = question_count
-				pass_dynMCQtest.attempt = input_attempt
 				#On récupère la réponse associé et on test si la réponse est bonne
 				the_answer = get_object_or_404(DynMCQanswer, id_test=input_id_test, q_num = question_count, right_ans = 1)
 				#Si la réponse est bonne, on incrémente la note du test
-				if(int(pass_dynMCQtest.r_ans[2]) == the_answer.ans_num):
+				if(int(pass_dynMCQtest.r_ans) == the_answer.ans_num):
 					Pass_DynMCQInfo.mark += 1
 					Pass_DynMCQInfo.save()
 				question_count += 1
@@ -372,15 +311,15 @@ def DynMCQtest_pass_view(request,input_id_test, input_id_student, input_attempt)
 		'DynMCQTestInfo':DynMCQTestInfo,
 		'form_answers': form_answers,
 		'DynMCQquestions_List' : DynMCQquestions_List,
-		'Questions_List' : Questions_List,
+		'Questions_Answers_List' : Questions_Answers_List,
 	}
 	return render(request, 'pass_tests/dynMCQtest_pass.html', context)
 	
-def pass_dynMCQtest_display_view(request,input_id_test,input_id_student,input_attempt):
+def pass_dynMCQtest_display_view(request,input_id_test,input_id_student):
 	# Retrieve and display the requested mcq form
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
-	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student,attempt = input_attempt)
-	Pass_DynMCQtest = Pass_DynMCQTest.objects.filter(id_test = input_id_test, id_student = input_id_student,attempt = input_attempt)
+	Pass_DynMCQInfo = get_object_or_404(Pass_DynMCQTest_Info, id_test=input_id_test, id_student = input_id_student)
+	Pass_DynMCQtest = Pass_DynMCQTest.objects.filter(id_test = input_id_test, id_student = input_id_student)
 	Pass_DynMCQtest_List = []
 	for instance in Pass_DynMCQtest:
 		Pass_DynMCQtest_List.append(instance)
@@ -791,6 +730,8 @@ def dyntest_pass_view(request, input_id_test):
 	DynTestInforms = get_object_or_404(DynTestInfo, id_test=input_id_test)
 	testlist_dyntest_all = DynTest.objects.all()
 	form_questions = []
+	DynTestInforms.print_test = True
+
 	#On récupère les dynamics test
 	for dyntest in testlist_dyntest_all:
 		if dyntest.id_test == input_id_test:
@@ -819,6 +760,7 @@ def dyntest_pass_view(request, input_id_test):
 				question_count += 1
 				pass_dyntest.save()
 			form_answers = PassDynTestSet()
+
 	context = {
 		'DynTestInforms':DynTestInforms,
 		'form_answers': form_answers,
@@ -875,8 +817,8 @@ def tests_list_student_view(request):
 	tests_list_normal_questions = Test_end_session.objects.all()
 	testlist_mcq = Test_mcq_end_session.objects.all()
 	testlist_mcqtest = MCQTest.objects.all()
-	testlist_dyntestinfo_all = DynTestInfo.objects.all()
-	testlist_dynmcqtestinfo_all = DynMCQInfo.objects.all()
+	testlist_dyntestinfo_all = DynTestInfo.objects.filter(print_test = True)
+	testlist_dynmcqtestinfo_all = DynMCQInfo.objects.filter(print_test = True)
 
 	context = {
 		'tests_list': tests_list_normal_questions,
@@ -963,7 +905,93 @@ def dashboard_view(request):
 	}
 	return render(request, 'manage_tests/dashboard.html', context)
 	
+@login_required
+@permission_required('tests.can_see_tests', raise_exception=True)
+def launch_view(request):
+	testlist_dyntest = DynTestInfo.objects.all()
+	testlist_dynmcqtest = DynMCQInfo.objects.all()
+	context = {
+		'testlist_dyntest' : testlist_dyntest,
+		'testlist_dynmcqtest': testlist_dynmcqtest
+	}
+	return render(request, 'manage_tests/launch_test.html', context)	
+
+def launch_specific_dyn_view(request, input_id_test):
+	dyntestinfo = get_object_or_404(DynTestInfo, id_test=input_id_test)
+	testlist_dyntest_all = DynTest.objects.all()
+	testlist_dyntest = []
+	for dyntest in testlist_dyntest_all:
+		if dyntest.id_test == input_id_test:
+			testlist_dyntest.append(dyntest)
+	context = {
+		'dyntestinfo':dyntestinfo,
+		'testlist_dyntest': testlist_dyntest,
+	}
+	return render(request, 'manage_tests/launch_specific_dyn_test.html', context)	
+
+def launch_specific_dynmcq_view(request, input_id_test):
+	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
+	DynMCQquestions = DynMCQquestion.objects.filter(id_test = input_id_test)
+	DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test)
 	
+	#On met les questions dans une liste
+	DynMCQquestions_List = []
+	for instance in DynMCQquestions:
+		DynMCQquestions_List.append(instance)
+		
+	#On ordonne les questions et les réponses dans une même liste pour l'affichage
+	Questions_Answers_List = []
+	for question in DynMCQquestions:
+		Questions_Answers_List.append(question)
+		DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = question.q_num)
+		for answer in DynMCQanswers:
+			Questions_Answers_List.append(answer)
+			
+	context = {
+		'DynMCQquestions_List':DynMCQquestions_List,
+		'DynMCQTestInfo':DynMCQTestInfo,
+		'Questions_Answers_List': Questions_Answers_List,
+	}
+	return render(request, 'manage_tests/launch_specific_dynmcq_test.html', context)	
+
+def in_launch_specific_dyn_view(request, input_id_test):
+	dyntestinfo = get_object_or_404(DynTestInfo, id_test=input_id_test)
+	testlist_dyntest_all = DynTest.objects.all()
+	testlist_dyntest = []
+	for dyntest in testlist_dyntest_all:
+		if dyntest.id_test == input_id_test:
+			testlist_dyntest.append(dyntest)
+	context = {
+		'dyntestinfo':dyntestinfo,
+		'testlist_dyntest': testlist_dyntest,
+	}
+	return render(request, 'manage_tests/in_launch_specific_dyn_test.html', context)
+
+def in_launch_specific_dynmcq_view(request, input_id_test):
+	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
+	DynMCQquestions = DynMCQquestion.objects.filter(id_test = input_id_test)
+	DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test)
+	
+	#On met les questions dans une liste
+	DynMCQquestions_List = []
+	for instance in DynMCQquestions:
+		DynMCQquestions_List.append(instance)
+		
+	#On ordonne les questions et les réponses dans une même liste pour l'affichage
+	Questions_Answers_List = []
+	for question in DynMCQquestions:
+		Questions_Answers_List.append(question)
+		DynMCQanswers = DynMCQanswer.objects.filter(id_test = input_id_test, q_num = question.q_num)
+		for answer in DynMCQanswers:
+			Questions_Answers_List.append(answer)
+			
+	context = {
+		'DynMCQquestions_List':DynMCQquestions_List,
+		'DynMCQTestInfo':DynMCQTestInfo,
+		'Questions_Answers_List': Questions_Answers_List,
+	}
+	return render(request, 'manage_tests/in_launch_specific_dynmcq_test.html', context)
+
 def statistics_view(request, input_id_test):
 	"""
 	mcqtest = get_object_or_404(MCQTest, id_test=input_id_test)

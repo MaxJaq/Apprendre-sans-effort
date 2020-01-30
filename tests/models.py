@@ -148,6 +148,7 @@ class DynMCQInfo(models.Model):
 	id_test = models.CharField(max_length=10, primary_key=True)
 	title = models.TextField()
 	nb_q = models.CharField(max_length=10)
+	print_test = models.BooleanField(default=False)
 
 	def get_absolute_url(self):
 		return reverse('tests:Create DynMCQTest', kwargs={'input_id_test': self.id_test})
@@ -163,6 +164,16 @@ class DynMCQInfo(models.Model):
 		
 	def get_statistics(self):
 		return reverse('tests:Statistics', kwargs={'input_id_test': self.id_test})
+
+	def launch_home(self):
+		return reverse('tests:Launch')
+
+	def get_launch(self):
+		return reverse('tests:Launch Specific McqDyn', kwargs={'input_id_test': self.id_test})
+
+	def get_in_launch(self):
+		print_test = True
+		return reverse('tests:In Launch Specific DynMcq', kwargs={'input_id_test': self.id_test})
 		
 		
 class DynMCQquestion(models.Model):
@@ -209,40 +220,45 @@ class DynMCQanswer(models.Model):
 		
 class Pass_DynMCQTest_Info(models.Model):
 	id_test = models.CharField(max_length=10, null=True)
-	id_student = models.CharField(max_length=10, null=True)
-	attempt = models.IntegerField(null = True)
+	id_student = models.CharField(max_length=10)
 	mark = models.IntegerField(null = True)
-	time = models.CharField(max_length=15, null=True)
-	
-	class Meta:
-		unique_together = ('id_test', 'id_student','attempt')
 		
 	def get_absolute_url(self):
-		return reverse('tests:Pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student,'input_attempt':self.attempt})
+		return reverse('tests:Pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student})
 		
 	def get_absolute_url_display(self):
-		return reverse('tests:Display pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student,'input_attempt':self.attempt})
+		return reverse('tests:Display pass dynmcqtest', kwargs={'input_id_test': self.id_test,'input_id_student': self.id_student})
 		
 class Pass_DynMCQTest(models.Model):
 	id_test = models.CharField(max_length=10, null=True)
 	id_student = models.CharField(max_length=10, null=True)
-	attempt = models.IntegerField(null = True)
 	q_num = models.CharField(max_length=10, null=True)
 	r_ans = models.TextField()
 
 	class Meta:
-		unique_together = ('id_test', 'id_student','attempt','q_num')
+		unique_together = ('id_test', 'id_student','q_num')
 
 class DynTestInfo(models.Model):
 	id_test = models.CharField(max_length=10, null=False, primary_key=True)
 	title = models.CharField(max_length=10, null=False)
 	nb_q = models.CharField(max_length=10, null=False)
+	print_test = models.BooleanField(default=False)
 
 	def get_absolute_url(self):
 		return reverse('tests:Create DynTest', kwargs={'input_id_test': self.id_test})
 		
 	def get_absolute_url_dyntest(self):
 		return reverse('tests:Display dyntest', kwargs={'input_id_test': self.id_test})
+
+	def launch_home(self):
+		return reverse('tests:Launch')
+
+	def get_launch(self):
+		return reverse('tests:Launch Specific Dyn', kwargs={'input_id_test': self.id_test})
+
+	def get_in_launch(self):
+		print_test = True
+		return reverse('tests:In Launch Specific Dyn', kwargs={'input_id_test': self.id_test})
 
 			
 class DynTest(models.Model):

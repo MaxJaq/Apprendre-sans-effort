@@ -360,7 +360,7 @@ class DynMCQanswerForm(forms.ModelForm):
 		]
 
 class Pass_DynMCQTestForm(forms.ModelForm):
-	r_ans = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple())
+	r_ans = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':10}))
 
 	class Meta:
 		model = Pass_DynMCQTest

@@ -48,6 +48,12 @@ from tests.views import (
 	tests_analysis_view,
 	dashboard_view,
 	statistics_view,
+
+	launch_view,
+	launch_specific_dyn_view,
+	launch_specific_dynmcq_view,
+	in_launch_specific_dyn_view,
+	in_launch_specific_dynmcq_view,
 )
 
 app_name = 'tests'
@@ -83,7 +89,7 @@ urlpatterns = [
 	path('manage/display/passmcqtest/<str:input_id_test>/', pass_mcqtest_display_view, name='Display pass mcqtest'),
 	path('manage/display/passtest/<str:input_id_test>/', pass_test_display_view, name='Display pass test'),
 	path('manage/display/passdyntest/<str:input_id_student>/', pass_dyntest_display_view, name='Display pass dyntest'),
-	path('manage/display/passdynMCQtest/<str:input_id_test>/<str:input_id_student>/<int:input_attempt>/', pass_dynMCQtest_display_view, name='Display pass dynmcqtest'),
+	path('manage/display/passdynMCQtest/<str:input_id_test>/<str:input_id_student>/', pass_dynMCQtest_display_view, name='Display pass dynmcqtest'),
 	path('manage/display/dynmcqtest/<str:input_id_test>/', DynMCQtest_display_view, name='Display DynMCQtest'),
 	
 	path('manage/list/test', tests_list_teacher_view, name='List tests teacher'),
@@ -92,12 +98,21 @@ urlpatterns = [
 	path('manage/dashboard/', dashboard_view, name='Dashboard'),
 	path('manage/statistics/<str:input_id_test>/', statistics_view, name='Statistics'),
 
+	path('manage/launch/', launch_view, name='Launch'),
+	path('manage/launch/dyn/<str:input_id_test>/', launch_specific_dyn_view, name='Launch Specific Dyn'),
+	path('manage/launch/mcqdyn/<str:input_id_test>/', launch_specific_dynmcq_view, name='Launch Specific McqDyn'),
+	path('manage/inlaunch/dyn/<str:input_id_test>/', in_launch_specific_dyn_view, name='In Launch Specific Dyn'),
+	path('manage/inlaunch/mcqdyn/<str:input_id_test>/', in_launch_specific_dynmcq_view, name='In Launch Specific DynMcq'),
+
+
+
+
 	# Student
 	path('pass/<str:input_id_test>', test_pass_view, name='Pass test'),
 	path('pass/mcq/<str:input_id_test>', test_mcq_pass_view, name='Pass test mcq'),
 	path('pass/mcqtest/<str:input_id_test>', test_mcqtest_pass_view, name='Pass test mcqtest'),
 	path('pass/dyntest/<str:input_id_test>', dyntest_pass_view, name='Pass dyntest'),
-	path('pass/dynmcqtest/<str:input_id_test>/<str:input_id_student>/<int:input_attempt>', DynMCQtest_pass_view, name='Pass dynmcqtest'),
+	path('pass/dynmcqtest/<str:input_id_test>/<str:input_id_student>', DynMCQtest_pass_view, name='Pass dynmcqtest'),
 	path('pass/menudynmcqtest/<str:input_id_test>', DynMCQTest_pass_menu_view, name='Menu Pass dynmcqtest'),
 	path('pass/list/', tests_list_student_view, name='List tests student'),
 	path('pass/history/', tests_history_view, name='Tests history'),

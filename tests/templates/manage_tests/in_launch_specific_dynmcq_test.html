@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='launch'>
+	{{ form_answers.management_form }}	
+	{% csrf_token %}
+	<h1>Passing Test {{ DynMCQTestInfo.id_test }} : {{DynMCQTestInfo.title}}</h1>
+	<br><br>	
+  
+  <h3 id="demo"></h3> 
+  <script type="text/javascript"> 
+    document.getElementById("demo").style.color = "green";
+    document.getElementById("demo").style.textAlign = "center";
+    var deadline = new Date().getTime() + 15*60000;
+    var x = setInterval(function() { 
+    var now = new Date().getTime();      
+    var t = deadline - now;     
+    var minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60)); 
+    var seconds = Math.floor((t % (1000 * 60)) / 1000); 
+    var hours = Math.floor((t%(1000 * 60 * 60 * 24))/(1000 * 60 * 60)); 
+    document.getElementById("demo").innerHTML = hours + ":" + minutes + ":" + seconds + " minutes "; 
+
+      if (t < 5*60000) {
+        document.getElementById("demo").style.color = "red";
+        var f = document.getElementById('demo');        
+        setInterval(function() {
+            f.style.display = (f.style.display == 'none' ? '' : 'none');
+        }, 1000);
+      }
+
+      if (t < 0) { 
+        clearInterval(x); 
+        document.getElementById("demo").innerHTML = "EXPIRED"; 
+      } 
+    }, 1000); 
+  </script> 
+
+	<br><br>
+	<button name = "stop" type ="submit" onclick = "location.href='{{ DynMCQTestInfo.launch_home }}'">STOP</button>
+	<br><br>
+	{%for instance in Questions_Answers_List%}
+		{% if instance in DynMCQquestions_List %}
+			<h3>Question {{instance.q_num}} : {{instance.q_text}}</h3>
+		{% else %}
+			{% if instance.right_ans == 1 %}
+				<p><b><u>Réponse {{instance.ans_num}} : {{instance.ans_text}}</u></b></p>
+			{% else %}
+				<p>Réponse {{instance.ans_num}} : {{instance.ans_text}}</p>
+			{% endif %}
+		{% endif %}
+	{%endfor%}
+	<br/>
+</div>
+
+{% endblock content %}

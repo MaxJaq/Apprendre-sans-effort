@@ -8,7 +8,7 @@
 		{% csrf_token %}
 		
 		{% if empty_passdynMCQtest is False %}
-			<p>Username : {{Pass_DynMCQInfo.id_student}} Tentative : {{Pass_DynMCQInfo.attempt}}</p>
+			<p>Username : {{Pass_DynMCQInfo.id_student}}</p>
 			<h3><a href='{{ Pass_DynMCQInfo.get_absolute_url }}'>Commencer le Test</a></h3>
 		{% endif %}
 	</form>
