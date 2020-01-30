@@ -48,6 +48,12 @@ from tests.views import (
 	tests_analysis_view,
 	dashboard_view,
 	statistics_view,
+	
+	launch_view,
+	launch_specific_dyn_view,
+	launch_specific_dynmcq_view,
+	in_launch_specific_dyn_view,
+	in_launch_specific_dynmcq_view,
 )
 
 app_name = 'tests'
@@ -91,6 +97,12 @@ urlpatterns = [
 	path('manage/analysis/', tests_analysis_view, name='Analyse tests'),
 	path('manage/dashboard/', dashboard_view, name='Dashboard'),
 	path('manage/statistics/<str:input_id_test>/', statistics_view, name='Statistics'),
+	
+	path('manage/launch/', launch_view, name='Launch'),
+	path('manage/launch/dyn/<str:input_id_test>/', launch_specific_dyn_view, name='Launch Specific Dyn'),
+	path('manage/launch/mcqdyn/<str:input_id_test>/', launch_specific_dynmcq_view, name='Launch Specific McqDyn'),
+	path('manage/inlaunch/dyn/<str:input_id_test>/', in_launch_specific_dyn_view, name='In Launch Specific Dyn'),
+	path('manage/inlaunch/mcqdyn/<str:input_id_test>/', in_launch_specific_dynmcq_view, name='In Launch Specific DynMcq'),
 
 	# Student
 	path('pass/<str:input_id_test>', test_pass_view, name='Pass test'),
