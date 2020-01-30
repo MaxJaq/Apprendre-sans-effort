@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<div class='launch'>
+	<h1>Launch Test {{ testlist_dyntest.0.id_test }} : {{ dyntestinfo.title }}</h1>
+	<br><br>	
+	<button name = "start" type ="submit" onclick = "location.href='{{dyntestinfo.get_in_launch}}'">START</button>
+	<br><br>
+	{% for instance in testlist_dyntest %}
+		<h3>Question {{instance.q_num}} : {{instance.q_text}}</h3>
+		<p>Réponse : {{instance.r_text}}</p>
+		{% if instance.activated %}
+			<p>Question utilisée : Oui</p>
+		{% else %}
+			<p>Question utilisée : Non</p>
+		{% endif %}
+		<br/>
+    {% endfor %}
+</div>
+
+{% endblock content %}

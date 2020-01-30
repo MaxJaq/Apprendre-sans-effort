@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class='launch'>
+	<h1>Passing Test {{ testlist_dyntest.0.id_test }} : {{ dyntestinfo.title }}</h1>
+  <br><br>	
+
+  <h3 id="demo"></h3> 
+  <script type="text/javascript"> 
+    document.getElementById("demo").style.color = "green";
+    document.getElementById("demo").style.textAlign = "center";
+    var deadline = new Date().getTime() + 15*60000;
+    var x = setInterval(function() { 
+    var now = new Date().getTime();      
+    var t = deadline - now;     
+    var minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60)); 
+    var seconds = Math.floor((t % (1000 * 60)) / 1000); 
+    var hours = Math.floor((t%(1000 * 60 * 60 * 24))/(1000 * 60 * 60)); 
+    document.getElementById("demo").innerHTML = hours + ":" + minutes + ":" + seconds + " minutes "; 
+
+      if (t < 5*60000) {
+        document.getElementById("demo").style.color = "red";
+        var f = document.getElementById('demo');        
+        setInterval(function() {
+            f.style.display = (f.style.display == 'none' ? '' : 'none');
+        }, 1000);
+      }
+
+      if (t < 0) { 
+        clearInterval(x); 
+        document.getElementById("demo").innerHTML = "EXPIRED"; 
+      } 
+    }, 1000); 
+  </script> 
+
+	<br><br>
+	<button name = "stop" type ="submit" onclick = "location.href='{{ dyntestinfo.launch_home }}'">STOP</button>
+	<br><br>
+	{% for instance in testlist_dyntest %}
+		<h3>Question {{instance.q_num}} : {{instance.q_text}}</h3>
+		<p>Réponse : {{instance.r_text}}</p>
+		{% if instance.activated %}
+			<p>Question utilisée : Oui</p>
+		{% else %}
+			<p>Question utilisée : Non</p>
+		{% endif %}
+		<br/>
+    {% endfor %}
+</div>
+
+{% endblock content %}
