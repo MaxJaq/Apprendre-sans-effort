@@ -137,6 +137,49 @@
   color: rgb(19, 64, 179);
 }
 
+.launch {
+  margin: auto;
+  width: 50%;
+}
+
+.launch h1 {
+  color: rgb(19, 64, 179);
+  text-align: center;
+}
+
+.launch p{
+  text-align: left;
+  width: 60%;
+}
+
+.countdown p{
+  text-align: center;
+  color: crimson;
+}
+
+.launch button{ 
+  background-color:white;
+  border: 3px solid  black;
+  border-radius: 12px;
+  color:black;
+  padding: 20px;    
+  display: inline-block;  
+  width: 125px;   
+  margin-left: 40%;
+  margin-right: 30%;
+}
+
+.launch button:hover {
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  background-color: #e6e6e6;
+}
+
+.launch button:active{
+  background-color: #e6e6e6;
+  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  transform: translateY(4px);
+}
+
 .body.home {
   position: static;
   padding-top: 5vh;
@@ -150,6 +193,9 @@
   padding-bottom: 2%;
   padding-top: 2%;
 }
+
+
+
 
 /* .page-header {
   background-color: #C25100;
