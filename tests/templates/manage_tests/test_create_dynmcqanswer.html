@@ -6,7 +6,7 @@
 		<p><a href='{{ DynMCQquestionTest.get_absolute_url_question }}'>Retour</a></p>
 		<h1>Passing Test : {{ DynMCQTestInfo.id_test }} Title : {{ DynMCQTestInfo.title }}</h1>
 		<br/>
-		<h2>Question {{DynMCQquestionTest.q_num}} : {{DynMCQquestionTest.q_text}}
+		<h2>Question : {{DynMCQquestionTest.q_text}}
 		{% if empty_answer is True %}
 			{{ form.management_form }}	
 			{% csrf_token %}

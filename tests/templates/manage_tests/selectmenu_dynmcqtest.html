@@ -4,14 +4,18 @@
 <div class='body'>
 	<form method='POST'> {% csrf_token %}
 		<a href="{% url 'tests:Create DynMCQTest Menu' %}">Retour</a>
-		<h1>Test {{DynMCQTestInfo.id_test}} : {{DynMCQTestInfo.title}}</h1>
+		<h1>Test : {{DynMCQTestInfo.title}}</h1>
 		<h2>Questions du test :</h2>
-		{% for instance in DynMCQquestionTestList %}
-			<p><a href='{{ instance.get_absolute_url_question }}'>Question {{ instance.q_num }} : </a>{{instance.q_text}} &nbsp &nbsp &nbsp <a href='{{ instance.get_absolute_url_delete }}'>Delete</a></p>
-		{% endfor %}
-		<br/>
-		<br/>
-		<h4><a href='{{ DynMCQTestInfo.get_absolute_url_add_question }}'>Ajouter une nouvelle question</a></h4>
+		{% if empty is True %}
+			{{form.questions}}
+			<input type='submit', value='Save'/>
+		{% else %}
+			{% for instance in DynMCQquestionTestList %}
+				<p>{{instance.q_text}}<p>
+			{% endfor %}
+			<br/>
+			<h4><a href='{{ DynMCQTestInfo.question_reallocation }}'>Réattribuer les questions</a></h4>
+		{% endif %}
 	</form>
 </div>
 {% endblock content %}

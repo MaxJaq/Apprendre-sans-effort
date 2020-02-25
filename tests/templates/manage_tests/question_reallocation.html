@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+	<form method='POST'> {% csrf_token %}
+		<a href='{{ DynMCQTestInfo.get_absolute_url_q_menu }}'>Retour</a>
+		<h1>Test : {{DynMCQTestInfo.title}}</h1>
+		{% if empty is True %}
+			<h3>Avant :</h3>
+			{% for instance in DynMCQquestionTestList %}
+				<p>{{instance.q_text}}</p>
+			{% endfor %}
+			<h3>Questions :</h3>
+			{{form.questions}}
+			<input type='submit', value='Save'/>
+		{% else %}
+			{% for instance in DynMCQquestionTestList %}
+				<p>{{instance.q_text}}</p>
+			{% endfor %}
+		{% endif %}
+	</form>
+</div>
+{% endblock content %}

@@ -8,9 +8,9 @@
 	<h4>Tentative : {{ Pass_DynMCQInfo.attempt }}</h4>
 	<h4>Time : {{ Pass_DynMCQInfo.time }}</h4>
 	{%for instance in Pass_DynMCQtest_List%}
-		<p>Réponse {{instance.q_num}} : {{instance.r_ans}}</p>
+		<p>Réponse {{forloop.counter}} : {{instance.r_ans}}</p>
 	{%endfor%}
-	<h3>Note : {{ Pass_DynMCQInfo.mark }} / {{DynMCQTestInfo.nb_q}}</h3>
+	<h3>Note : {{ Pass_DynMCQInfo.mark }} / {{nb_questions}}</h3>
 </div>
 
 {% endblock content %}

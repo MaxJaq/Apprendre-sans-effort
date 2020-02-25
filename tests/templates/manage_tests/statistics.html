@@ -6,7 +6,7 @@
 	<h1>Pass Test : {{ DynMCQTestInfo.id_test }}</h1>
 	{% for instance in PassDynMCQInfo_List %}
             <p>
-                    Note de l'élève {{instance.id_student}} : {{instance.mark}}/{{ DynMCQTestInfo.nb_q }}
+                    Note de l'élève {{instance.id_student}} : {{instance.mark}}/{{ nb_questions }}
             </p>
     {% endfor %}
 	
@@ -14,19 +14,19 @@
 	<h2>Statistiques du test</h2>
 	<br/>
 	<p>Nombre de test passés : {{nb_test}}</p>
-	<p>Moyenne du test : {{moyenne_mcqtest}}/{{ DynMCQTestInfo.nb_q }}</p>
-	<p>Quartile n°1 : {{q1}}/{{ DynMCQTestInfo.nb_q }}</p>
-	<p>Mediane : {{mediane}}/{{ DynMCQTestInfo.nb_q }}</p>
-	<p>Quartile n°3 : {{q3}}/{{ DynMCQTestInfo.nb_q }}</p>
-	<p>Note la plus basse : {{note_plus_basse}}/{{ DynMCQTestInfo.nb_q }}</p>
-	<p>Note la plus haute : {{note_plus_haute}}/{{ DynMCQTestInfo.nb_q }}</p>
+	<p>Moyenne du test : {{moyenne_mcqtest}}/{{ nb_questions }}</p>
+	<p>Quartile n°1 : {{q1}}/{{ nb_questions }}</p>
+	<p>Mediane : {{mediane}}/{{ nb_questions }}</p>
+	<p>Quartile n°3 : {{q3}}/{{ nb_questions }}</p>
+	<p>Note la plus basse : {{note_plus_basse}}/{{ nb_questions }}</p>
+	<p>Note la plus haute : {{note_plus_haute}}/{{ nb_questions }}</p>
 	
 	<h3>Fréquence des notes</h3>
 	<table>
 	<tr>
 	<td>Note&nbsp </td>
 	{% for freq in total_freq %}
-		<td>&nbsp {{forloop.counter0}}/{{ DynMCQTestInfo.nb_q }}</td>	
+		<td>&nbsp {{forloop.counter0}}/{{ nb_questions }}</td>	
     {% endfor %}
 	</tr>
 	<tr>

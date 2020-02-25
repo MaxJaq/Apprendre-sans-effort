@@ -12,7 +12,7 @@
   <script type="text/javascript"> 
     document.getElementById("demo").style.color = "green";
     document.getElementById("demo").style.textAlign = "center";
-    var deadline = new Date().getTime() + 15*60000;
+    var deadline = new Date().getTime() + {{time}}*60000;
     var x = setInterval(function() { 
     var now = new Date().getTime();      
     var t = deadline - now;     
@@ -21,12 +21,8 @@
     var hours = Math.floor((t%(1000 * 60 * 60 * 24))/(1000 * 60 * 60)); 
     document.getElementById("demo").innerHTML = hours + ":" + minutes + ":" + seconds + " minutes "; 
 
-      if (t < 5*60000) {
+      if (t < 2*60000) {
         document.getElementById("demo").style.color = "red";
-        var f = document.getElementById('demo');        
-        setInterval(function() {
-            f.style.display = (f.style.display == 'none' ? '' : 'none');
-        }, 1000);
       }
 
       if (t < 0) { 
@@ -37,7 +33,7 @@
   </script> 
 
 	<br><br>
-	<button name = "stop" type ="submit" onclick = "location.href='{{ DynMCQTestInfo.launch_home }}'">STOP</button>
+	<button name = "stop" type ="submit" onclick = "location.href='{{ DynMCQTestInfo.stop_launch }}'">STOP</button>
 	<br><br>
 	{%for instance in Questions_Answers_List%}
 		{% if instance in DynMCQquestions_List %}

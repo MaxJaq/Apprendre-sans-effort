@@ -42,13 +42,12 @@
 			
 		<h2>Dynamic MCQ TEST :</h2>
 	
-			{% for instance in testlist_dynmcqtestinfo_all %}
+			{% for instance in testlist_dynmcqtestinfo_user %}
 				<p>
-                    <a href="{% url 'tests:Menu Pass dynmcqtest' input_id_test=instance.id_test %}">Test {{ instance.id_test }}</a>: {{ instance.title }}
+                    <a href="{% url 'tests:Menu Pass dynmcqtest' input_id_test=instance.id_test %}">Test </a>: {{ instance.title }}
                 <!-- {{ instance.description }} -->
 				</p>
 			{% endfor %}
-
 </div>
 
 {% endblock content %}

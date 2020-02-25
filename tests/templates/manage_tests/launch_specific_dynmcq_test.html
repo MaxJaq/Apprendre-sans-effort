@@ -3,23 +3,27 @@
 {% block content %}
 
 <div class='launch'>
-	{{ form_answers.management_form }}	
-	{% csrf_token %}
-	<h1>Launch Test {{ DynMCQTestInfo.id_test }} : {{DynMCQTestInfo.title}}</h1>
-	<br><br>	
-	<button name = "start" type ="submit" onclick = "location.href='{{DynMCQTestInfo.get_in_launch}}'">START</button>
-	<br><br>
-	{%for instance in Questions_Answers_List%}
-		{% if instance in DynMCQquestions_List %}
-			<h3>Question {{instance.q_num}} : {{instance.q_text}}</h3>
-		{% else %}
-			{% if instance.right_ans == 1 %}
-				<p><b><u>Réponse {{instance.ans_num}} : {{instance.ans_text}}</u></b></p>
+	<form method='POST'>	
+		{% csrf_token %}
+		<h1>Launch Test {{ DynMCQTestInfo.id_test }} : {{DynMCQTestInfo.title}}</h1>
+			<p>Timer : {{form.time}}</p>
+			<h4>Groups : </h4>
+			<p>{{form.activated_for}}</p>
+		<br><br>	
+		<button name = "start" type ="submit" onclick = "location.href='{{DynMCQTestInfo.get_in_launch}}'">START</button>
+		<br><br>
+		{%for instance in Questions_Answers_List%}
+			{% if instance in DynMCQquestions_List %}
+				<h3>Question {{instance.q_num}} : {{instance.q_text}}</h3>
 			{% else %}
-				<p>Réponse {{instance.ans_num}} : {{instance.ans_text}}</p>
+				{% if instance.right_ans == 1 %}
+					<p><b><u>Réponse {{instance.ans_num}} : {{instance.ans_text}}</u></b></p>
+				{% else %}
+					<p>Réponse {{instance.ans_num}} : {{instance.ans_text}}</p>
+				{% endif %}
 			{% endif %}
-		{% endif %}
-	{%endfor%}
+		{%endfor%}
+	</form>
 	<br/>
 </div>
 

@@ -3,7 +3,7 @@
 {% block content %}
 <div class='body'>
 	<form method='POST'>
-		<h1>Passing Test {{ DynMCQTestInfo.id_test }} : {{ DynMCQTestInfo.title }}</h1>
+		<h1>Passing Test : {{ DynMCQTestInfo.title }}</h1>
 		<br/>
 		{% csrf_token %}
 		

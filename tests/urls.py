@@ -16,6 +16,9 @@ from tests.views import (
 	DynMCQquestion_select_menu_view,
 	DynMCQquestion_create_view,
 	DynMCQanswer_create_view,
+	Manage_questions_view,
+	Question_reallocation_view,
+	Add_difficulty_view,
 	
 	Edit_DynMCQquestion_view,
 	Edit_DynMCQanswer_view,
@@ -54,6 +57,7 @@ from tests.views import (
 	launch_specific_dynmcq_view,
 	in_launch_specific_dyn_view,
 	in_launch_specific_dynmcq_view,
+	in_launch_mcq_stop_test,
 )
 
 app_name = 'tests'
@@ -72,15 +76,18 @@ urlpatterns = [
 	path('manage/create/dyntest/<str:input_id_test>/', DynTest_create_view, name='Create DynTest'),
 	path('manage/create/dynmcqtestmenu/', DynMCQTest_menu_view, name='Create DynMCQTest Menu'),
 	path('manage/create/dynmcqtestselectqmenu/<str:input_id_test>/', DynMCQquestion_select_menu_view, name='SelectMenu DynMCQquestion'),
-	path('manage/create/dynmcqtestquestion/<str:input_id_test>/<str:input_q_num>', DynMCQquestion_create_view, name='Create DynMCQquestion'),
-	path('manage/create/dynmcqtestanswer/<str:input_id_test>/<str:input_q_num>', DynMCQanswer_create_view, name='Create DynMCQanswers'),
-	path('manage/create/dynmcqtestaddquestion/<str:input_id_test>/', Add_DynMCQquestion_view, name='AddQuestion DynMCQquestion'),
-	path('manage/create/dynmcqtestaddanswer/<str:input_id_test>/<str:input_q_num>', Add_DynMCQanswer_view, name='AddAnswer DynMCQanswer'),
+	path('manage/create/dynmcqtestquestion/<str:input_q_num>/', DynMCQquestion_create_view, name='Create DynMCQquestion'),
+	path('manage/create/dynmcqtestanswer/<str:input_q_num>/', DynMCQanswer_create_view, name='Create DynMCQanswers'),
+	path('manage/create/dynmcqtestaddquestion/', Add_DynMCQquestion_view, name='AddQuestion DynMCQquestion'),
+	path('manage/create/dynmcqtestaddanswer/<str:input_q_num>', Add_DynMCQanswer_view, name='AddAnswer DynMCQanswer'),
+	path('manage/create/managequestions', Manage_questions_view, name='Manage Questions'),
+	path('manage/create/question_reallocation/<str:input_id_test>/', Question_reallocation_view, name='Question_reallocation'),
+	path('manage/create/add_difficulty/<str:input_q_num>/', Add_difficulty_view, name='Add Difficulty'),
 	
-	path('manage/edit/dynmcqtestquestion/<str:input_id_test>/<str:input_q_num>', Edit_DynMCQquestion_view, name='Edit DynMCQquestion'),
-	path('manage/edit/dynmcqtestanswer/<str:input_id_test>/<str:input_q_num>/<str:input_ans_num>', Edit_DynMCQanswer_view, name='Edit DynMCQanswer'),
-	path('manage/delete/dynmcqtestquestion/<str:input_id_test>/<str:input_q_num>', Delete_DynMCQquestion_view, name='Delete DynMCQquestion'),
-	path('manage/delete/dynmcqtestanswer/<str:input_id_test>/<str:input_q_num>/<str:input_ans_num>', Delete_DynMCQanswer_view, name='Delete DynMCQanswer'),
+	path('manage/edit/dynmcqtestquestion/<str:input_q_num>', Edit_DynMCQquestion_view, name='Edit DynMCQquestion'),
+	path('manage/edit/dynmcqtestanswer/<str:input_q_num>/<str:input_ans_num>', Edit_DynMCQanswer_view, name='Edit DynMCQanswer'),
+	path('manage/delete/dynmcqtestquestion/<str:input_q_num>', Delete_DynMCQquestion_view, name='Delete DynMCQquestion'),
+	path('manage/delete/dynmcqtestanswer/<str:input_q_num>/<str:input_ans_num>', Delete_DynMCQanswer_view, name='Delete DynMCQanswer'),
 	
 	path('manage/display/test/<str:input_id_test>/', test_display_view, name='Display test'),
 	path('manage/display/dyntest/<str:input_id_test>/', dyntest_display_view, name='Display dyntest'),
@@ -103,6 +110,7 @@ urlpatterns = [
 	path('manage/launch/mcqdyn/<str:input_id_test>/', launch_specific_dynmcq_view, name='Launch Specific McqDyn'),
 	path('manage/inlaunch/dyn/<str:input_id_test>/', in_launch_specific_dyn_view, name='In Launch Specific Dyn'),
 	path('manage/inlaunch/mcqdyn/<str:input_id_test>/', in_launch_specific_dynmcq_view, name='In Launch Specific DynMcq'),
+	path('manage/stopinlaunch/mcqdyn/<str:input_id_test>/', in_launch_mcq_stop_test, name='Stop mcq launch'),
 
 	# Student
 	path('pass/<str:input_id_test>', test_pass_view, name='Pass test'),

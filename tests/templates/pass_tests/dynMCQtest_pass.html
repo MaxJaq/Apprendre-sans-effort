@@ -9,7 +9,7 @@
 		<h1>Passing Test {{ DynMCQTestInfo.id_test }} : {{DynMCQTestInfo.title}}</h1>
 		<h3>Id Student : {{Pass_DynMCQInfo.id_student}} Tentative : {{Pass_DynMCQInfo.attempt}}</h3>
 		{%for instance in Questions_List%}
-			<h3>Question {{instance.q_num}} : {{instance.q_text}}</h3>
+			<h3>Question : {{instance.q_text}}</h3>
 			<!--On créé une variable temporaire answer qui est la réponse à la question.
 			    On la récupère grâce au filtre index qui nous permet d'afficher les réponses dans la même boucle des questions.
 				answer est l'objet de la réponse de l'élève or on veut afficher r_ans

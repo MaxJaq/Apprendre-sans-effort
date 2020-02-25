@@ -307,15 +307,41 @@ class Pass_DynTestForm(forms.ModelForm):
 		]
 		
 class DynMCQTestInfoForm(forms.ModelForm):
-	id_test = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder':'test id'}))
+	id_test = forms.CharField(required=True)
 	title = forms.CharField(required=True)
-	nb_q = forms.CharField(required=True)
 	class Meta:
 		model = DynMCQInfo
 		fields = [
 			'id_test',
 			'title',
-			'nb_q',
+		]
+
+class DynMCQTestInfoForm_questions(forms.ModelForm):
+	questions = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple())
+
+	class Meta:
+		model = DynMCQInfo
+		fields = [
+			'questions',
+		]
+	
+class DynMCQTestInfoForm_launch(forms.ModelForm):
+	activated_for = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple())
+	time = forms.CharField(required=True,widget=forms.TextInput(attrs={'placeholder':'mm:ss'}))
+
+	class Meta:
+		model = DynMCQInfo
+		fields = [
+			'time',
+			'activated_for',
+		]
+		
+class Question_difficulty_form(forms.ModelForm):
+	difficulty = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple())
+	class Meta:
+		model = DynMCQquestion
+		fields = [
+			'difficulty',
 		]
 		
 class DynMCQquestionForm(forms.ModelForm):

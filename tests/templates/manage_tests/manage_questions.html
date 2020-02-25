@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+	<form method='POST'> {% csrf_token %}
+		<a href="{% url 'tests:Create DynMCQTest Menu' %}">Retour</a>
+		<h2>Questions :</h2>
+		{% for instance in DynMCQquestions %}
+			<p><a href='{{ instance.get_absolute_url_question }}'>Question {{ instance.id_q }} : </a>{{instance.q_text}} &nbsp &nbsp &nbsp <a href='{{ instance.get_absolute_url_delete }}'>Delete</a></p>
+		{% endfor %}
+		<br/>
+		<br/>
+		<h4><a href="{% url 'tests:AddQuestion DynMCQquestion' %}">Créer une nouvelle question</a></h4>
+	</form>
+</div>
+{% endblock content %}
+
