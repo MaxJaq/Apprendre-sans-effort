@@ -5,8 +5,8 @@
 	<form method='POST'> 
 		{{ form.management_form }}
 		{% csrf_token %}
-		<p><a href='{{ DynquestionTest.get_absolute_url_question }}'>Retour</a></p>
-		<h2>Question : {{DynquestionTest.q_text}}</h2> 
+		<p><a href='{{ DynMCQquestionTest.get_absolute_url_question }}'>Retour</a></p>
+		<h2>Question : {{DynMCQquestionTest.q_text}}</h2> 
 		{% if empty is True %}
 			{% for instance in form %}
 				<p>Theme {{forloop.counter}} :</p>
@@ -14,7 +14,7 @@
 			{% endfor %}
 			<input type='submit', value='Save'/>
 		{% else %}
-			<p>Difficulty : {{DynquestionTest.difficulty}}</p>
+			<p>Difficulty : {{DynMCQquestionTest.difficulty}}</p>
 		{% endif %}
 	</form>
 </div>

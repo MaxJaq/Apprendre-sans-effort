@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+	<form method='POST'> 
+		{% csrf_token %} 	
+		<p><a href="{% url 'tests:Manage Questions' %}">Retour</a></p>
+		<h1>Question :</h1>
+		
+		{% if empty_question is True %}
+			<p>Question : {{ form.q_text }}</p>
+			<p>Réponse : {{ form.r_text }}</p>
+			<p>Utiliser la question : {{ form.activated }}</p>
+			<input type='submit', value='Save'/>
+		{% endif %}
+		
+		{% if empty_question is False %}
+			<h3>Question : {{ DynquestionTest.q_text }}&nbsp &nbsp &nbsp <a href='{{ DynquestionTest.get_absolute_url_edit }}'>Edit</a>&nbsp &nbsp &nbsp <a href='{{ DynquestionTest.get_absolute_url_delete }}'>Delete</a></h3>
+			<p>Réponse : {{ DynquestionTest.r_text }}</p>
+			<p> Difficulty : {{DynquestionTest.difficulty}}</p>
+			<p><a href='{{ DynquestionTest.get_absolute_url_difficulty }}'>Remplir la difficulté</a></p>
+		{% endif %}
+	</form>
+</div>
+{% endblock content %}
+

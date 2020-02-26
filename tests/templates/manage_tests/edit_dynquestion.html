@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class='body'>
+	<form method='POST'> {% csrf_token %}
+		<p><a href='{{ DynquestionTest.get_absolute_url_question }}'>Retour</a></p>
+		
+		<h2>Question : {{DynquestionTest.q_text}} &nbsp 
+			{% if DynquestionTest.activated == 1 %}
+				(Question activée)
+			{% else %}
+				(Question désactivée)
+			{% endif %}
+		</h2>
+		<h3>Réponse : {{DynquestionTest.r_text}}</h3>
+		<p>Question : {{ form.q_text }}</p>
+		<p>Réponse : {{ form.r_text }}</p>
+		<p>Utiliser la question : {{ form.activated }}</p>
+		<input type='submit', value='Save'/>
+	</form>
+</div>
+{% endblock content %}
+

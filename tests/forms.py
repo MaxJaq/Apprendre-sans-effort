@@ -14,6 +14,7 @@ from .models import (
 	DynMCQanswer,
 	Pass_DynMCQTest,
 	Pass_DynMCQTest_Info,
+	Dynquestion,
 )
 
 from .backend_code import compare_input_wt_expected as compare
@@ -271,7 +272,7 @@ class DynTestForm(forms.ModelForm):
 	# Properly displayed
 	q_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
 	r_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':25}))
-	activated = forms.BooleanField(initial=False)
+	activated = forms.IntegerField(widget=forms.TextInput(attrs={'placeholder':'0 if no, 1 if yes'}))
 
 	# Robustly Handled
 	class Meta:
@@ -336,10 +337,18 @@ class DynMCQTestInfoForm_launch(forms.ModelForm):
 			'activated_for',
 		]
 		
-class Question_difficulty_form(forms.ModelForm):
+class MCQQuestion_difficulty_form(forms.ModelForm):
 	difficulty = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple())
 	class Meta:
 		model = DynMCQquestion
+		fields = [
+			'difficulty',
+		]
+		
+class Question_difficulty_form(forms.ModelForm):
+	difficulty = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple())
+	class Meta:
+		model = Dynquestion
 		fields = [
 			'difficulty',
 		]
@@ -356,6 +365,21 @@ class DynMCQquestionForm(forms.ModelForm):
 		fields = [
 			'q_text',
 			'nb_ans',
+			'activated',
+		]
+		
+class DynquestionForm(forms.ModelForm):
+	# Properly displayed
+	q_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':100}))
+	r_text = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':25}))
+	activated = forms.IntegerField(widget=forms.TextInput(attrs={'placeholder':'0 if no, 1 if yes'}))
+
+	# Robustly Handled
+	class Meta:
+		model = Dynquestion
+		fields = [
+			'q_text',
+			'r_text',
 			'activated',
 		]
 		

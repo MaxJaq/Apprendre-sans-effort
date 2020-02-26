@@ -180,6 +180,24 @@ class DynMCQInfo(models.Model):
 	def stop_launch(self):
 		return reverse('tests:Stop mcq launch', kwargs={'input_id_test': self.id_test})
 		
+class Dynquestion(models.Model):
+	q_num = models.AutoField(primary_key=True)
+	q_text = models.TextField()
+	r_text = models.TextField()
+	activated = models.IntegerField(null = True)
+	difficulty = models.TextField(default="")
+
+	def get_absolute_url_question(self):
+		return reverse('tests:Create Dynquestion', kwargs={'input_q_num': self.q_num})
+		
+	def get_absolute_url_difficulty(self):
+		return reverse('tests:Add Difficulty question', kwargs={'input_q_num': self.q_num})
+		
+	def get_absolute_url_edit(self):
+		return reverse('tests:Edit Dynquestion', kwargs={'input_q_num': self.q_num})
+		
+	def get_absolute_url_delete(self):
+		return reverse('tests:Delete Dynquestion', kwargs={'input_q_num': self.q_num})	
 		
 class DynMCQquestion(models.Model):
 	q_num = models.AutoField(primary_key=True)
@@ -277,7 +295,7 @@ class DynTest(models.Model):
 	q_num = models.IntegerField(null = True)
 	q_text = models.TextField()
 	r_text = models.TextField()
-	activated = models.BooleanField(default=False)
+	activated = models.IntegerField(null = True)
 
 	def get_absolute_url(self):
 		return reverse('tests:Display dyntest', kwargs={'input_id_test': self.id_test})

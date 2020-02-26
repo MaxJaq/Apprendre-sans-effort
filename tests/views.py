@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.forms import formset_factory
-from .forms import TestForm, PassTestForm, TestMcqForm, PassTestMcqForm, MCQTestForm, PassMCQTestForm, DynTestForm, Pass_DynTestForm,DynTestInfoForm,DynMCQTestInfoForm,DynMCQquestionForm,DynMCQanswerForm,Pass_DynMCQTestForm,DynMCQquestionForm_question,Pass_DynMCQTestInfoForm,DynMCQTestInfoForm,DynMCQTestInfoForm_questions,Question_difficulty_form,DynMCQTestInfoForm_launch
-from .models import Test_end_session, Pass_test_end_session, Test_mcq_end_session, MCQTest, Pass_MCQTest_end_session, DynTest,Pass_DynTest,DynTestInfo,DynMCQInfo,DynMCQquestion,DynMCQanswer,Pass_DynMCQTest,Pass_DynMCQTest_Info
+from .forms import TestForm, PassTestForm, TestMcqForm, PassTestMcqForm, MCQTestForm, PassMCQTestForm, DynTestForm, Pass_DynTestForm,DynTestInfoForm,DynMCQTestInfoForm,DynMCQquestionForm,DynMCQanswerForm,Pass_DynMCQTestForm,DynMCQquestionForm_question,Pass_DynMCQTestInfoForm,DynMCQTestInfoForm,DynMCQTestInfoForm_questions,Question_difficulty_form,MCQQuestion_difficulty_form,DynMCQTestInfoForm_launch,DynquestionForm
+from .models import Test_end_session, Pass_test_end_session, Test_mcq_end_session, MCQTest, Pass_MCQTest_end_session, DynTest,Pass_DynTest,DynTestInfo,DynMCQInfo,DynMCQquestion,DynMCQanswer,Pass_DynMCQTest,Pass_DynMCQTest_Info,Dynquestion
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime
@@ -133,9 +133,11 @@ def DynMCQTest_menu_view(request):
 def Manage_questions_view(request):
 	#Récupération des tests
 	DynMCQquestions = DynMCQquestion.objects.all()
+	Dynquestions = Dynquestion.objects.all()
 			
 	context = {
 		'DynMCQquestions' : DynMCQquestions,
+		'Dynquestions' : Dynquestions,
 	}
 	return render(request, 'manage_tests/manage_questions.html',context)
 	
@@ -144,51 +146,91 @@ def DynMCQquestion_select_menu_view(request, input_id_test):
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
 	empty = False
 	DynMCQquestionTestList = []
+	DynquestionTestList = []
 	#Récupération des questions du test
 	if(DynMCQTestInfo.questions != ""):
 		num_questions = get_questions(DynMCQTestInfo.questions)
 
-		#On met les questions dans une liste
-		for i in range(len(num_questions)):
-			DynMCQQuestion = DynMCQquestion.objects.get(q_num = num_questions[i])
+		#On met les questions dans une listes
+		mcq_questions = num_questions[0]
+		normal_questions = num_questions[1]
+		for i in range(len(mcq_questions)):
+			DynMCQQuestion = DynMCQquestion.objects.get(q_num = mcq_questions[i])
 			DynMCQquestionTestList.append(DynMCQQuestion)
+		for i in range(len(normal_questions)):
+			DynQuestion = Dynquestion.objects.get(q_num = normal_questions[i])
+			DynquestionTestList.append(DynQuestion)
 
 	form = []
 	#S'il n'y a pas encore de questions créées, on créé autant de questions que précisé dans les informations du test
-	if len(DynMCQquestionTestList) == 0:
+	if len(DynMCQquestionTestList) == 0 and len(DynquestionTestList) == 0:
 		empty = True
-		form = DynMCQTestInfoForm_questions()
+		QuestionsSet = formset_factory(DynMCQTestInfoForm_questions, extra = 2)
+		#on met dans data 3 propriétés obligatoire pour le fonctionnement du formulaire groupé
+		data = {
+			'form-TOTAL_FORMS': 2,
+			'form-INITIAL_FORMS': '0',
+			'form-MAX_NUM_FORMS': '',
+		}
+	
+		form = QuestionsSet()
 		choices = []
+		choices2 = []
 		DynMCQquestions = DynMCQquestion.objects.all()
+		Dynquestions = Dynquestion.objects.all()
 		for question in DynMCQquestions:
 			list = []
 			list.append(int(question.q_num))
 			list.append(question.q_text)
 			choices.append(list)
-		form.fields['questions'].choices = choices
+		form[0].fields['questions'].choices = choices
+		for question in Dynquestions:
+			list = []
+			list.append(int(question.q_num))
+			list.append(question.q_text)
+			choices2.append(list)
+		form[1].fields['questions'].choices = choices2
 		if request.method == 'POST':
-			form = DynMCQTestInfoForm_questions(request.POST, instance = DynMCQTestInfo)
+			form = QuestionsSet(request.POST)
 			choices = []
+			choices2 = []
 			DynMCQquestions = DynMCQquestion.objects.all()
+			Dynquestions = Dynquestion.objects.all()
 			for question in DynMCQquestions:
 				list = []
 				list.append(int(question.q_num))
 				list.append(question.q_text)
 				choices.append(list)
-			form.fields['questions'].choices = choices
+			form[0].fields['questions'].choices = choices
+			for question in Dynquestions:
+				list = []
+				list.append(int(question.q_num))
+				list.append(question.q_text)
+				choices2.append(list)
+			form[1].fields['questions'].choices = choices2
 		
 			if form.is_valid():
-				form.save()
+				test = form[0].save(commit = False)
+				test2 = form[1].save(commit = False)
+				DynMCQTestInfo.questions = "a" + test.questions + "b" + test2.questions
+				DynMCQTestInfo.save()
+				
 				empty = False
 				num_questions = get_questions(DynMCQTestInfo.questions)
 
 				#On met les questions dans une liste
-				for i in range(len(num_questions)):
-					DynMCQQuestion = DynMCQquestion.objects.get(q_num = num_questions[i])
+				mcq_questions = num_questions[0]
+				normal_questions = num_questions[1]
+				for i in range(len(mcq_questions)):
+					DynMCQQuestion = DynMCQquestion.objects.get(q_num = mcq_questions[i])
 					DynMCQquestionTestList.append(DynMCQQuestion)
+				for i in range(len(normal_questions)):
+					DynQuestion = Dynquestion.objects.get(q_num = normal_questions[i])
+					DynquestionTestList.append(DynQuestion)
 			
 	context = {
 		'DynMCQquestionTestList': DynMCQquestionTestList,
+		'DynquestionTestList': DynquestionTestList,
 		'DynMCQTestInfo': DynMCQTestInfo,
 		'form': form,
 		'empty':empty,
@@ -203,40 +245,85 @@ def Question_reallocation_view(request, input_id_test):
 	
 	#On met les questions dans une liste
 	DynMCQquestionTestList = []
-	for i in range(len(num_questions)):
-		DynMCQquestionTestList.append(DynMCQquestion.objects.get(q_num = num_questions[i]))
+	DynquestionTestList = []
 	
-	form = DynMCQTestInfoForm_questions()
+	mcq_questions = num_questions[0]
+	normal_questions = num_questions[1]
+	for i in range(len(mcq_questions)):
+		DynMCQQuestion = DynMCQquestion.objects.get(q_num = mcq_questions[i])
+		DynMCQquestionTestList.append(DynMCQQuestion)
+	for i in range(len(normal_questions)):
+		DynQuestion = Dynquestion.objects.get(q_num = normal_questions[i])
+		DynquestionTestList.append(DynQuestion)
+				
+	QuestionsSet = formset_factory(DynMCQTestInfoForm_questions, extra = 2)
+	#on met dans data 3 propriétés obligatoire pour le fonctionnement du formulaire groupé
+	data = {
+		'form-TOTAL_FORMS': 2,
+		'form-INITIAL_FORMS': '0',
+		'form-MAX_NUM_FORMS': '',
+	}
+	
+	form = QuestionsSet()
 	choices = []
+	choices2 = []
 	DynMCQquestions = DynMCQquestion.objects.all()
+	Dynquestions = Dynquestion.objects.all()
 	for question in DynMCQquestions:
 		list = []
 		list.append(int(question.q_num))
 		list.append(question.q_text)
 		choices.append(list)
-	form.fields['questions'].choices = choices
+	form[0].fields['questions'].choices = choices
+	for question in Dynquestions:
+		list = []
+		list.append(int(question.q_num))
+		list.append(question.q_text)
+		choices2.append(list)
+	form[1].fields['questions'].choices = choices2
 	if request.method == 'POST':
-		form = DynMCQTestInfoForm_questions(request.POST, instance = DynMCQTestInfo)
+		form = QuestionsSet(request.POST)
 		choices = []
+		choices2 = []
 		DynMCQquestions = DynMCQquestion.objects.all()
+		Dynquestions = Dynquestion.objects.all()
 		for question in DynMCQquestions:
 			list = []
 			list.append(int(question.q_num))
 			list.append(question.q_text)
 			choices.append(list)
-		form.fields['questions'].choices = choices
-	
+		form[0].fields['questions'].choices = choices
+		for question in Dynquestions:
+			list = []
+			list.append(int(question.q_num))
+			list.append(question.q_text)
+			choices2.append(list)
+		form[1].fields['questions'].choices = choices2
+		
 		if form.is_valid():
-			form.save()
+			test = form[0].save(commit = False)
+			test2 = form[1].save(commit = False)
+			DynMCQTestInfo.questions = "a" + test.questions + "b" + test2.questions
+			DynMCQTestInfo.save()
+			
 			empty = False
 			num_questions = get_questions(DynMCQTestInfo.questions)
+
 			#On met les questions dans une liste
+			mcq_questions = num_questions[0]
+			normal_questions = num_questions[1]
 			DynMCQquestionTestList = []
-			for i in range(len(num_questions)):
-				DynMCQquestionTestList.append(DynMCQquestion.objects.get(q_num = num_questions[i]))
-					
+			DynquestionTestList = []
+			for i in range(len(mcq_questions)):
+				DynMCQQuestion = DynMCQquestion.objects.get(q_num = mcq_questions[i])
+				DynMCQquestionTestList.append(DynMCQQuestion)
+			for i in range(len(normal_questions)):
+				DynQuestion = Dynquestion.objects.get(q_num = normal_questions[i])
+				DynquestionTestList.append(DynQuestion)
+			
 	context = {
 		'DynMCQquestionTestList': DynMCQquestionTestList,
+		'DynquestionTestList': DynquestionTestList,
 		'DynMCQTestInfo': DynMCQTestInfo,
 		'form': form,
 		'empty':empty,
@@ -245,21 +332,32 @@ def Question_reallocation_view(request, input_id_test):
 
 def get_questions(questions):
 	num_questions = []
-	i = 0
-	while i < len(questions):
-		if questions[i].isdigit():
-			isdigit = True
-			number = str(questions[i])
-			count = 1
-			while(isdigit):
-				if(questions[i+count].isdigit()):
-					number += questions[i+count]
-					count += 1
-				else:
-					isdigit = False
-			num_questions.append(int(number))
-			i += count - 1
-		i += 1
+	if "]b[" in questions:
+		num_questions = questions.split("]b[")
+		num_questions[0] = num_questions[0].replace("a","")
+		num_questions[1] = num_questions[1].replace("b","")
+		num_questions[0] = num_questions[0].replace("[","")
+		num_questions[1] = num_questions[1].replace("]","")
+		num_questions[0] = num_questions[0].replace("'","")
+		num_questions[1] = num_questions[1].replace("'","")
+		num_questions[0] = num_questions[0].split(",")
+		num_questions[1] = num_questions[1].split(",")
+	else:
+		posA = questions.find("a")
+		str = questions
+		str = str.replace("a","")
+		str = str.replace("b","")
+		str = str.replace("[","")
+		str = str.replace("]","")
+		str = str.replace("'","")
+		listquestions = str.split(",")
+		list = []
+		if(questions[posA+1] == "b"):
+			num_questions.append(list)
+			num_questions.append(listquestions)
+		else :
+			num_questions.append(listquestions)
+			num_questions.append(list)
 	return num_questions	
 	
 def DynMCQquestion_create_view(request, input_q_num):
@@ -295,11 +393,36 @@ def DynMCQquestion_create_view(request, input_q_num):
 	}
 	return render(request, 'manage_tests/test_create_dynmcqquestion.html',context)
 	
+def Dynquestion_create_view(request, input_q_num):
+	#Récupération la question sélectionnée du test
+	DynquestionTest = get_object_or_404(Dynquestion, q_num = input_q_num)
+	#On récupère les réponses liées à la question
+	empty_question = True
+	form = 0
+	#Si la question n'a pas encore été "remplie", on affiche le formulaire de la question 
+	if DynquestionTest.q_text == "":
+		form = DynquestionForm(request.POST, instance = DynquestionTest)
+		if form.is_valid():
+			form.save()
+			form = DynquestionForm()
+			empty_question = False
+	#Si la question a été rempli, on teste s'il y a des réponses déjà remplies pour les afficher 
+	else:
+		empty_question = False
+			
+			
+	context = {
+		'form': form,
+		'empty_question': empty_question,
+		'DynquestionTest' : DynquestionTest,
+	}
+	return render(request, 'manage_tests/test_create_dynquestion.html',context)
+	
 def Add_difficulty_view(request,input_q_num):
 	#Récupération la question sélectionnée du test
 	DynMCQquestionTest = get_object_or_404(DynMCQquestion, q_num = input_q_num)
 	empty = True
-	DifficultySet = formset_factory(Question_difficulty_form, extra = 5)
+	DifficultySet = formset_factory(MCQQuestion_difficulty_form, extra = 5)
 	#on met dans data 3 propriétés obligatoire pour le fonctionnement du formulaire groupé
 	data = {
 		'form-TOTAL_FORMS': 5,
@@ -342,6 +465,57 @@ def Add_difficulty_view(request,input_q_num):
 	context = {
 		'form' : form,
 		'DynMCQquestionTest' : DynMCQquestionTest,
+		'empty' : empty,
+	}
+	return render(request, 'manage_tests/mcqquestion_difficulty.html',context)
+	
+def Add_difficulty_question_view(request,input_q_num):
+	#Récupération la question sélectionnée du test
+	DynquestionTest = get_object_or_404(Dynquestion, q_num = input_q_num)
+	empty = True
+	DifficultySet = formset_factory(Question_difficulty_form, extra = 5)
+	#on met dans data 3 propriétés obligatoire pour le fonctionnement du formulaire groupé
+	data = {
+		'form-TOTAL_FORMS': 5,
+		'form-INITIAL_FORMS': '0',
+		'form-MAX_NUM_FORMS': '',
+	}
+	
+	form = DifficultySet()
+
+	for theme in form:
+		choices = []
+		for i in range(5):
+			list = []
+			list.append(i)
+			list.append(i)
+			choices.append(list)
+		theme.fields['difficulty'].choices = choices #Assignation des choix
+		
+	if request.method == 'POST':
+		form = DifficultySet(request.POST)
+		
+		for theme in form:
+			choices = []
+			for i in range(5):
+				list = []
+				list.append(i)
+				list.append(i)
+				choices.append(list)
+			theme.fields['difficulty'].choices = choices #Assignation des choix
+	
+		if form.is_valid():
+			the_difficulty = ""
+			for theme in form:
+				the_theme = theme.save(commit=False)
+				the_difficulty += the_theme.difficulty
+			DynquestionTest.difficulty = the_difficulty
+			DynquestionTest.save()
+			empty = False
+			
+	context = {
+		'form' : form,
+		'DynquestionTest' : DynquestionTest,
 		'empty' : empty,
 	}
 	return render(request, 'manage_tests/question_difficulty.html',context)
@@ -570,12 +744,23 @@ def pass_dynMCQtest_display_view(request,input_id_test,input_id_student,input_at
 def DynMCQtest_display_view(request, input_id_test):
 	DynMCQTestInfo = get_object_or_404(DynMCQInfo, id_test=input_id_test)
 	num_questions = get_questions(DynMCQTestInfo.questions)
+	mcq_questions = num_questions[0]
+	normal_questions = num_questions[1]
+	
 	DynMCQquestions_List = []
-	for i in range(len(num_questions)):
-		DynMCQquestions_List.append(DynMCQquestion.objects.get(q_num = num_questions[i]))
+	Dynquestions_List = []
+		
+	for i in range(len(normal_questions)):
+		DynQuestion = Dynquestion.objects.get(q_num = normal_questions[i])
+		Dynquestions_List.append(DynQuestion)
+	
+	for i in range(len(mcq_questions)):
+		DynMCQQuestion = DynMCQquestion.objects.get(q_num = mcq_questions[i])
+		DynMCQquestions_List.append(DynMCQQuestion)
+		
 	DynMCQanswers = []
 	for i in range(len(num_questions)):
-		theDynMCQanswers = DynMCQanswer.objects.filter(q_num = num_questions[i])
+		theDynMCQanswers = DynMCQanswer.objects.filter(q_num = int(mcq_questions[i]))
 		for ans in theDynMCQanswers:
 			DynMCQanswers.append(ans)
 		
@@ -591,6 +776,7 @@ def DynMCQtest_display_view(request, input_id_test):
 		'DynMCQquestions_List':DynMCQquestions_List,
 		'DynMCQTestInfo':DynMCQTestInfo,
 		'Questions_Answers_List': Questions_Answers_List,
+		'Dynquestions_List':Dynquestions_List,
 	}
 	return render(request, 'manage_tests/dynmcqtest_display.html', context)
 	
@@ -607,6 +793,20 @@ def Edit_DynMCQquestion_view(request,input_q_num):
 		'DynMCQquestionTest':DynMCQquestionTest,
 	}
 	return render(request, 'manage_tests/edit_dynMCQquestion.html', context)
+	
+def Edit_Dynquestion_view(request,input_q_num):
+	DynquestionTest = get_object_or_404(Dynquestion, q_num = input_q_num)
+	
+	form = DynquestionForm(request.POST, instance = DynquestionTest)
+	if form.is_valid():
+		form.save()
+		form = DynquestionForm(instance = DynquestionTest)
+			
+	context = {
+		'form': form,
+		'DynquestionTest':DynquestionTest,
+	}
+	return render(request, 'manage_tests/edit_dynquestion.html', context)
 	
 def Edit_DynMCQanswer_view(request,input_q_num,input_ans_num):
 	DynMCQquestionTest = get_object_or_404(DynMCQquestion, q_num = input_q_num)
@@ -642,9 +842,28 @@ def Delete_DynMCQquestion_view(request,input_q_num):
 			
 	#Récupération des questions du test
 	DynMCQquestions = DynMCQquestion.objects.all()		
+	Dynquestions = Dynquestion.objects.all()	
+	
+	context = {
+		'Dynquestions': Dynquestions,
+		'DynMCQquestions': DynMCQquestions,
+	}
+	return render(request, 'manage_tests/manage_questions.html', context)
+	
+def Delete_Dynquestion_view(request,input_q_num):
+	#Récupération des informations du test et de la question à supprimer
+	DynquestionTest = get_object_or_404(Dynquestion, q_num = input_q_num)
+	
+	#Suppression de la question
+	DynquestionTest.delete()
+			
+	#Récupération des questions du test
+	DynMCQquestions = DynMCQquestion.objects.all()
+	Dynquestions = Dynquestion.objects.all()		
 	
 	context = {
 		'DynMCQquestions': DynMCQquestions,
+		'Dynquestions': Dynquestions,
 	}
 	return render(request, 'manage_tests/manage_questions.html', context)
 	
@@ -693,9 +912,26 @@ def Add_DynMCQquestion_view(request):
 	DynamicMCQquestion.save()
 	
 	DynMCQquestions = DynMCQquestion.objects.all()
+	Dynquestions = Dynquestion.objects.all()
 	
 	context = {
 		'DynMCQquestions' : DynMCQquestions,
+		'Dynquestions' : Dynquestions,
+	}
+
+	return render(request, 'manage_tests/manage_questions.html',context)
+	
+def Add_Dynquestion_view(request):
+	#Création de la nouvelle question
+	Dynamicquestion = Dynquestion.objects.create()
+	Dynamicquestion.save()
+	
+	DynMCQquestions = DynMCQquestion.objects.all()
+	Dynquestions = Dynquestion.objects.all()
+	
+	context = {
+		'DynMCQquestions' : DynMCQquestions,
+		'Dynquestions' : Dynquestions,
 	}
 
 	return render(request, 'manage_tests/manage_questions.html',context)

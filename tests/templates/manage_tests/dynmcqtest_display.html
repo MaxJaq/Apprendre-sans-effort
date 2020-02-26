@@ -5,6 +5,7 @@
 	{{ form_answers.management_form }}	
 	{% csrf_token %}
 	<h1>Passing Test {{ DynMCQTestInfo.id_test }} : {{DynMCQTestInfo.title}}</h1>
+	<h2>Questions QCM :</h2>
 	{%for instance in Questions_Answers_List%}
 		{% if instance in DynMCQquestions_List %}
 			<h3>Question : {{instance.q_text}}</h3>
@@ -15,6 +16,11 @@
 				<p>Réponse {{instance.ans_num}} : {{instance.ans_text}}</p>
 			{% endif %}
 		{% endif %}
+	{%endfor%}
+	<h2>Questions normales :</h2>
+	{%for instance in Dynquestions_List%}
+		<h3>Question : {{instance.q_text}}</h3>
+		<p><b>Réponse : {{instance.r_text}}</b></p>
 	{%endfor%}
 	<br/>
 </div>

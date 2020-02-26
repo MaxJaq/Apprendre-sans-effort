@@ -2,15 +2,30 @@
 
 {% block content %}
 <div class='body'>
-	<form method='POST'> {% csrf_token %}
+	<form method='POST'>{{ form.management_form }}{% csrf_token %}
 		<a href="{% url 'tests:Create DynMCQTest Menu' %}">Retour</a>
 		<h1>Test : {{DynMCQTestInfo.title}}</h1>
-		<h2>Questions du test :</h2>
+		<h1>Questions : {{DynMCQTestInfo.questions}}</h1>
 		{% if empty is True %}
-			{{form.questions}}
+			{% for question in form %}
+				{% with counter=forloop.counter %}
+					{% if counter == 1 %}
+						<h2>Questions QCM :</h2>
+					{% else %}
+						<h2>Questions :</h2>
+					{% endif %}
+				{% endwith %}
+				{{question.questions}}
+			{% endfor %}
 			<input type='submit', value='Save'/>
 		{% else %}
+			<h2>Questions du test :</h2>
+			<h3>Questions QCM :</h3>
 			{% for instance in DynMCQquestionTestList %}
+				<p>{{instance.q_text}}<p>
+			{% endfor %}
+			<h3>Questions normales :</h3>
+			{% for instance in DynquestionTestList %}
 				<p>{{instance.q_text}}<p>
 			{% endfor %}
 			<br/>
