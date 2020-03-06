@@ -151,6 +151,7 @@ class DynMCQInfo(models.Model):
 	questions = models.TextField(default="")
 	time = models.CharField(max_length=10,default="")
 	activated_for = models.TextField(default="")
+	release_time = models.CharField(max_length=15, default="")
 
 	def get_absolute_url(self):
 		return reverse('tests:Create DynMCQTest', kwargs={'input_id_test': self.id_test})
@@ -263,6 +264,16 @@ class Pass_DynMCQTest(models.Model):
 	attempt = models.IntegerField(null = True)
 	q_num = models.CharField(max_length=10, null=True)
 	r_ans = models.TextField()
+
+	class Meta:
+		unique_together = ('id_test', 'id_student','attempt','q_num')
+		
+class Pass_DynquestionTest(models.Model):
+	id_test = models.CharField(max_length=10, null=True)
+	id_student = models.CharField(max_length=10, null=True)
+	attempt = models.IntegerField(null = True)
+	q_num = models.CharField(max_length=10, null=True)
+	r_answer = models.TextField()
 
 	class Meta:
 		unique_together = ('id_test', 'id_student','attempt','q_num')

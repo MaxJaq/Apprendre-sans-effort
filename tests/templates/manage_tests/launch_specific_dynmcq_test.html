@@ -6,11 +6,15 @@
 	<form method='POST'>	
 		{% csrf_token %}
 		<h1>Launch Test {{ DynMCQTestInfo.id_test }} : {{DynMCQTestInfo.title}}</h1>
+		
 			<p>Timer : {{form.time}}</p>
 			<h4>Groups : </h4>
 			<p>{{form.activated_for}}</p>
-		<br><br>	
-		<button name = "start" type ="submit" onclick = "location.href='{{DynMCQTestInfo.get_in_launch}}'">START</button>
+			<input type='submit', value='Save'/>
+			<br><br>	
+		{% if empty is False %}
+			<button name = "start" type ="submit" onclick = "location.href='{{DynMCQTestInfo.get_in_launch}}'">START</button>
+		{% endif %}
 		<br><br>
 		{%for instance in Questions_Answers_List%}
 			{% if instance in DynMCQquestions_List %}
@@ -23,6 +27,12 @@
 				{% endif %}
 			{% endif %}
 		{%endfor%}
+		<h2>Questions normales :</h2>
+		{%for instance in Dynquestions_List%}
+			<h3>Question : {{instance.q_text}}</h3>
+			<p><b>Réponse : {{instance.r_text}}</b></p>
+		{%endfor%}
+		<br/>
 	</form>
 	<br/>
 </div>

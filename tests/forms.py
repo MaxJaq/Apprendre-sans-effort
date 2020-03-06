@@ -15,6 +15,7 @@ from .models import (
 	Pass_DynMCQTest,
 	Pass_DynMCQTest_Info,
 	Dynquestion,
+	Pass_DynquestionTest,
 )
 
 from .backend_code import compare_input_wt_expected as compare
@@ -416,6 +417,15 @@ class Pass_DynMCQTestForm(forms.ModelForm):
 		model = Pass_DynMCQTest
 		fields = [
 			'r_ans',
+		]
+		
+class Pass_DynquestionTestForm(forms.ModelForm):
+	r_answer = forms.CharField(widget=forms.Textarea(attrs={'rows':1, 'cols':25}))
+
+	class Meta:
+		model = Pass_DynquestionTest
+		fields = [
+			'r_answer',
 		]
 		
 class Pass_DynMCQTestInfoForm(forms.ModelForm):
