@@ -4,6 +4,15 @@
 
 <div class='body'>
     <h1>History of tests</h1>
+	
+	<h2>Dynamic MCQ Test :</h2>
+	
+	{% for instance in pass_dynMCQtest_user %}
+            <p>
+                    <a href='{{ instance.get_absolute_url_display }}'>Student {{ instance.id_student }} : Test {{instance.id_test}} Tentative {{ instance.attempt }}</a>
+                <!-- {{ instance.description }} -->
+            </p>
+    {% endfor %}
 </div>
 
 {% endblock content %}
